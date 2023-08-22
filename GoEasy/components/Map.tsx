@@ -28,7 +28,7 @@ export const Map = () => {
     latitude: null,
     longitude: null,
   });
-
+  const [followUser, setFollowUser] = useState<boolean>(true);
   const [userLocation, setUserLocation] = useState<Coords>({
     latitude: null,
     longitude: null,
@@ -79,12 +79,13 @@ export const Map = () => {
   const onUserLocationChange = (e: any) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
 
-    //console.log("e", latitude, _previousUserLocation.current.latitude);
+    //The property onUserLocationChange will keep update with coords
+    //even when coords haven't changed. For this not to be to expencive we only need
+    //to update users location when moving device.
     if (
       latitude !== _previousUserLocation.current.latitude ||
       longitude !== _previousUserLocation.current.longitude
     ) {
-      //console.log("latitude");
       setUserLocation({
         ...userLocation,
         latitude: latitude,
@@ -98,15 +99,19 @@ export const Map = () => {
 
   useEffect(() => {
     const { latitude, longitude } = userLocation;
+    if (latitude && longitude && followUser) {
+      InteractionManager.runAfterInteractions(() =>
+        animateToRegion(userLocation, 350)
+      );
+    }
+  }, [userLocation, followUser]);
 
-    console.log(userLocation);
-    InteractionManager.runAfterInteractions(() =>
-      animateToRegion(userLocation, 350)
-    );
-  }, [userLocation]);
+  const onPanDrag = () => {
+    setFollowUser(false);
+  };
 
   const handleFollowUser = () => {
-    console.log("follow");
+    setFollowUser(true);
   };
 
   const animateToRegion = (coords: any, speed: number) => {
@@ -143,6 +148,7 @@ export const Map = () => {
         showsUserLocation={true}
         onUserLocationChange={onUserLocationChange}
         showsMyLocationButton={false}
+        onPanDrag={onPanDrag}
         mapType={"standard"}
       ></MapView>
     </View>
