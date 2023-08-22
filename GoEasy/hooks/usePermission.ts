@@ -1,7 +1,14 @@
 import * as Location from "expo-location";
 
-let foregroundSubscription = null;
-export const usePermisson = async (callback) => {
+interface LocationCoords {
+  latitude: number;
+  longitude: number;
+}
+
+type LocationCallback = (coords: LocationCoords) => void;
+
+let foregroundSubscription: Location.LocationSubscription | null = null;
+export const usePermission = async (callback: LocationCallback) => {
   const requestPermissions = async () => {
     const foreground = await Location.requestForegroundPermissionsAsync();
     if (foreground.granted) startForegroundUpdate();
