@@ -1,13 +1,22 @@
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
-import { StyleSheet, View, Text } from "react-native";
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import { StyleSheet, View, Text, InteractionManager } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import * as Location from "expo-location";
+import { usePermission } from "../hooks/usePermission";
+
+interface LocationResult {
+  latitude: number;
+  longitude: number;
+}
 
 export const Map = () => {
+  //Safearea for contents on the device
   const insets = useSafeAreaInsets();
-  let mapRef = useRef<MapView | null>(null);
-  //defining a state variable inner city copenhagen as fallback
+
+  //Define useRefs for later use
+  const _mapRef = useRef<MapView | null>(null);
+
+  //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
     coords: {
       latitude: 55.68375507989918,
@@ -17,69 +26,47 @@ export const Map = () => {
     },
   });
 
-  // Request permissions right after starting the app
   useEffect(() => {
-    const requestPermissions = async () => {
-      const foreground = await Location.requestForegroundPermissionsAsync();
-      if (foreground.granted) startForegroundUpdate();
-    };
-    requestPermissions();
+    //The callback function is executed after the async operation, it will
+    // will await the promise before proceeding whith the logic.
+    usePermission(function (result: LocationResult) {
+      try {
+        const coords = {
+          latitude: result.latitude,
+          longitude: result.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        };
+
+        setInitialRegion({
+          ...initialRegion,
+          coords: {
+            ...initialRegion.coords,
+            latitude: result.latitude,
+            longitude: result.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          },
+        });
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    });
   }, []);
+
   useEffect(() => {
-    if (mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: initialRegion.coords.latitude,
-        longitude: initialRegion.coords.longitude,
-        latitudeDelta: 0.001,
-        longitudeDelta: 0.001,
-      });
-    }
+    //By using InteractionManager.runAfterInteractions(), we can ensure that the animation is
+    //triggered only after the user's interactions with the app have completed.
+    //This can provide a smoother and more seamless user experience.
+    InteractionManager.runAfterInteractions(() =>
+      animateToRegion(initialRegion.coords, 1)
+    );
   }, [initialRegion]);
 
-  // Start location tracking in foreground
-  const startForegroundUpdate = async () => {
-    // Check if foreground permission is granted
-    const { granted } = await Location.getForegroundPermissionsAsync();
-    if (!granted) {
-      console.log("location tracking denied");
-      return;
+  const animateToRegion = (coords: any, speed: number) => {
+    if (_mapRef.current) {
+      _mapRef?.current?.animateToRegion(coords, speed);
     }
-    let foregroundSubscription: any;
-    // Make sure that foreground location tracking is not running
-    foregroundSubscription?.remove();
-
-    // Start watching position in real-time
-    foregroundSubscription = await Location.watchPositionAsync(
-      {
-        // For better logs, we set the accuracy to the most sensitive option
-        accuracy: Location.Accuracy.BestForNavigation,
-      },
-      (location) => {
-        try {
-          if (location.coords === null) {
-            // Handle invalid location data, if needed
-            console.log("Invalid location data received.");
-            return;
-          }
-
-          const locationRegion = {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          };
-
-          console.log(location.coords.latitude);
-          setInitialRegion((prevRegion) => ({
-            ...prevRegion,
-            coords: locationRegion,
-          }));
-        } catch (error) {
-          console.error("Error while processing location:", error);
-          // Handle the error gracefully, show an error message, or take appropriate actions
-        }
-      }
-    );
   };
 
   return (
@@ -95,7 +82,7 @@ export const Map = () => {
       ]}
     >
       <MapView
-        ref={mapRef}
+        ref={_mapRef}
         style={styles.map}
         initialRegion={initialRegion.coords}
         provider={PROVIDER_GOOGLE}
