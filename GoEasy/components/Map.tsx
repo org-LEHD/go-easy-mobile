@@ -1,8 +1,15 @@
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
-import { StyleSheet, View, Text, InteractionManager } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  InteractionManager,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
+import { SVGIcons } from "./SVG-Icons/Svg";
 
 interface LocationResult {
   latitude: number;
@@ -63,6 +70,10 @@ export const Map = () => {
     );
   }, [initialRegion]);
 
+  const handleFollowUser = () => {
+    console.log("follow");
+  };
+
   const animateToRegion = (coords: any, speed: number) => {
     if (_mapRef.current) {
       _mapRef?.current?.animateToRegion(coords, speed);
@@ -81,6 +92,14 @@ export const Map = () => {
         },
       ]}
     >
+      <View style={styles.toolbar}>
+        <TouchableOpacity
+          style={[styles.toolbarIcon]}
+          onPress={handleFollowUser}
+        >
+          <SVGIcons.Center />
+        </TouchableOpacity>
+      </View>
       <MapView
         ref={_mapRef}
         style={styles.map}
@@ -100,5 +119,28 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  toolbar: {
+    flex: 0,
+    flexBasis: 0,
+    alignSelf: "flex-end",
+    backgroundColor: "lightgrey",
+    zIndex: 1,
+  },
+  toolbarIcon: {
+    backgroundColor: "white",
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "rgba(0, 0, 0, 0.3)",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 1,
+    shadowRadius: 3,
+    marginTop: 15,
   },
 });
