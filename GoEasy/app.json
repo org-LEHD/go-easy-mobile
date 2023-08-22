@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "GoEasy",
-    "slug": "GoEasy",
+    "slug": "goeasy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -22,11 +22,18 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.dani144.GoEasy"
     },
     "web": {
       "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3149b16c-176b-4543-afe7-5dd5d75b5546"
+      }
+    },
+    "owner": "dama-goeasy"
   }
 }
