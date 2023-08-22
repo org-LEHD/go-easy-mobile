@@ -1,12 +1,21 @@
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
-import { StyleSheet, View, Text, InteractionManager } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  InteractionManager,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
+import { SVGIcons } from "./SVG-Icons/Svg";
 
-interface LocationResult {
-  latitude: number;
-  longitude: number;
+interface Coords {
+  latitude: number | null;
+  longitude: number | null;
+  latitudeDelta?: number | null;
+  longitudeDelta?: number | null;
 }
 
 export const Map = () => {
@@ -15,6 +24,15 @@ export const Map = () => {
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
+  const _previousUserLocation = useRef<Coords>({
+    latitude: null,
+    longitude: null,
+  });
+  const [followUser, setFollowUser] = useState<boolean>(true);
+  const [userLocation, setUserLocation] = useState<Coords>({
+    latitude: null,
+    longitude: null,
+  });
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -29,25 +47,20 @@ export const Map = () => {
   useEffect(() => {
     //The callback function is executed after the async operation, it will
     // will await the promise before proceeding whith the logic.
-    usePermission(function (result: LocationResult) {
+    usePermission(function (result: Coords) {
       try {
-        const coords = {
-          latitude: result.latitude,
-          longitude: result.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        };
-
-        setInitialRegion({
-          ...initialRegion,
-          coords: {
-            ...initialRegion.coords,
-            latitude: result.latitude,
-            longitude: result.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          },
-        });
+        if (result.latitude !== null && result.longitude !== null) {
+          setInitialRegion({
+            ...initialRegion,
+            coords: {
+              ...initialRegion.coords,
+              latitude: result.latitude,
+              longitude: result.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            },
+          });
+        }
       } catch (error) {
         console.error("An error occurred:", error);
       }
@@ -62,6 +75,44 @@ export const Map = () => {
       animateToRegion(initialRegion.coords, 1)
     );
   }, [initialRegion]);
+
+  const onUserLocationChange = (e: any) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+
+    //The property onUserLocationChange will keep update with coords
+    //even when coords haven't changed. For this not to be to expencive we only need
+    //to update users location when moving device.
+    if (
+      latitude !== _previousUserLocation.current.latitude ||
+      longitude !== _previousUserLocation.current.longitude
+    ) {
+      setUserLocation({
+        ...userLocation,
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+    _previousUserLocation.current = { latitude, longitude };
+  };
+
+  useEffect(() => {
+    const { latitude, longitude } = userLocation;
+    if (latitude && longitude && followUser) {
+      InteractionManager.runAfterInteractions(() =>
+        animateToRegion(userLocation, 350)
+      );
+    }
+  }, [userLocation, followUser]);
+
+  const onPanDrag = () => {
+    setFollowUser(false);
+  };
+
+  const handleFollowUser = () => {
+    setFollowUser(true);
+  };
 
   const animateToRegion = (coords: any, speed: number) => {
     if (_mapRef.current) {
@@ -81,13 +132,23 @@ export const Map = () => {
         },
       ]}
     >
+      <View style={styles.toolbar}>
+        <TouchableOpacity
+          style={[styles.toolbarIcon]}
+          onPress={handleFollowUser}
+        >
+          <SVGIcons.Center />
+        </TouchableOpacity>
+      </View>
       <MapView
         ref={_mapRef}
         style={styles.map}
         initialRegion={initialRegion.coords}
         provider={PROVIDER_GOOGLE}
         showsUserLocation={true}
+        onUserLocationChange={onUserLocationChange}
         showsMyLocationButton={false}
+        onPanDrag={onPanDrag}
         mapType={"standard"}
       ></MapView>
     </View>
@@ -100,5 +161,28 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  toolbar: {
+    flex: 0,
+    flexBasis: 0,
+    alignSelf: "flex-end",
+    backgroundColor: "lightgrey",
+    zIndex: 1,
+  },
+  toolbarIcon: {
+    backgroundColor: "white",
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "rgba(0, 0, 0, 0.3)",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 1,
+    shadowRadius: 3,
+    marginTop: 15,
   },
 });
