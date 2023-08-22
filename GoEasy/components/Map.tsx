@@ -11,9 +11,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
 
-interface LocationResult {
-  latitude: number;
-  longitude: number;
+interface Coords {
+  latitude: number | null;
+  longitude: number | null;
+  latitudeDelta?: number | null;
+  longitudeDelta?: number | null;
 }
 
 export const Map = () => {
@@ -22,6 +24,15 @@ export const Map = () => {
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
+  const _previousUserLocation = useRef<Coords>({
+    latitude: null,
+    longitude: null,
+  });
+
+  const [userLocation, setUserLocation] = useState<Coords>({
+    latitude: null,
+    longitude: null,
+  });
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -36,25 +47,20 @@ export const Map = () => {
   useEffect(() => {
     //The callback function is executed after the async operation, it will
     // will await the promise before proceeding whith the logic.
-    usePermission(function (result: LocationResult) {
+    usePermission(function (result: Coords) {
       try {
-        const coords = {
-          latitude: result.latitude,
-          longitude: result.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        };
-
-        setInitialRegion({
-          ...initialRegion,
-          coords: {
-            ...initialRegion.coords,
-            latitude: result.latitude,
-            longitude: result.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          },
-        });
+        if (result.latitude !== null && result.longitude !== null) {
+          setInitialRegion({
+            ...initialRegion,
+            coords: {
+              ...initialRegion.coords,
+              latitude: result.latitude,
+              longitude: result.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            },
+          });
+        }
       } catch (error) {
         console.error("An error occurred:", error);
       }
@@ -69,6 +75,35 @@ export const Map = () => {
       animateToRegion(initialRegion.coords, 1)
     );
   }, [initialRegion]);
+
+  const onUserLocationChange = (e: any) => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+
+    //console.log("e", latitude, _previousUserLocation.current.latitude);
+    if (
+      latitude !== _previousUserLocation.current.latitude ||
+      longitude !== _previousUserLocation.current.longitude
+    ) {
+      //console.log("latitude");
+      setUserLocation({
+        ...userLocation,
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+    _previousUserLocation.current = { latitude, longitude };
+  };
+
+  useEffect(() => {
+    const { latitude, longitude } = userLocation;
+
+    console.log(userLocation);
+    InteractionManager.runAfterInteractions(() =>
+      animateToRegion(userLocation, 350)
+    );
+  }, [userLocation]);
 
   const handleFollowUser = () => {
     console.log("follow");
@@ -106,6 +141,7 @@ export const Map = () => {
         initialRegion={initialRegion.coords}
         provider={PROVIDER_GOOGLE}
         showsUserLocation={true}
+        onUserLocationChange={onUserLocationChange}
         showsMyLocationButton={false}
         mapType={"standard"}
       ></MapView>
