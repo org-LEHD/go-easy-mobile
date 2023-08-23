@@ -157,7 +157,7 @@ export const Map = () => {
         onPanDrag={onPanDrag}
         mapType={"standard"}
       >
-        {markersContext && userLocation && (
+        { userLocation && markersContext && (
           <Markers
           userLocation={{
             latitude: userLocation.latitude,
