@@ -1,16 +1,19 @@
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import {
   StyleSheet,
   View,
   Text,
   InteractionManager,
   TouchableOpacity,
+  Animated,
+  ScrollView,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
-import BottomSheetController from "./BottomSheet/BottomSheetController";
+import { BottomSheetController } from "./BottomSheet/BottomSheetController";
+import { CARD_WIDTH } from "../constants/constants";
 
 interface Coords {
   latitude: number | null;
@@ -20,6 +23,10 @@ interface Coords {
 }
 
 export const Map = () => {
+  const mapAnimation = useMemo(() => {
+    return new Animated.Value(0);
+  }, []);
+
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
 
@@ -29,6 +36,9 @@ export const Map = () => {
     latitude: null,
     longitude: null,
   });
+  const _scrollViewRef = useRef<ScrollView | null>(null);
+
+  //Define useStates for later use
   const [followUser, setFollowUser] = useState<boolean>(true);
   const [userLocation, setUserLocation] = useState<Coords>({
     latitude: null,
@@ -101,9 +111,9 @@ export const Map = () => {
   useEffect(() => {
     const { latitude, longitude } = userLocation;
     if (latitude && longitude && followUser) {
-      InteractionManager.runAfterInteractions(() =>
-        animateToRegion(userLocation, 350)
-      );
+      // InteractionManager.runAfterInteractions(() =>
+      //   animateToRegion(userLocation, 350)
+      // );
     }
   }, [userLocation, followUser]);
 
@@ -113,6 +123,59 @@ export const Map = () => {
 
   const handleFollowUser = () => {
     setFollowUser(true);
+  };
+
+  const markers = [
+    { latitude: 55.827324, longitude: 12.248818 },
+    { latitude: 55.827564, longitude: 12.252668 },
+  ];
+
+  useEffect(() => {
+    mapAnimation.addListener(({ value }) => {
+      //Create index from x coordinate we get from gesture
+      let index = Math.floor(value / CARD_WIDTH + 0.3);
+      console.log("fff", index);
+      //Exclude numbers below 0 and the total size of the array
+      index = Math.min(Math.max(index, 0), markers.length - 1);
+      //Get the coords from array
+      const { latitude, longitude } = markers[index] || {};
+
+      const coords = {
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+
+      InteractionManager.runAfterInteractions(() =>
+        animateToRegion(coords, 350)
+      );
+    });
+    //Cleanup function. This will ensure that markers don't hold a reference to the initial state and uses the updated state.
+    return () => {
+      mapAnimation.removeAllListeners();
+    };
+  }, [markers]);
+
+  const interpolations = markers.map((_, index) => {
+    const inputRange = [
+      (index - 1) * CARD_WIDTH,
+      index * CARD_WIDTH,
+      (index + 1) * CARD_WIDTH,
+    ];
+    const scale = mapAnimation.interpolate({
+      inputRange,
+      outputRange: [1, 1.5, 1],
+      extrapolate: "clamp",
+    });
+
+    return { scale };
+  });
+
+  const handleOnMarkerPress = (e: any) => {
+    const markerID = e._targetInst.return.key;
+    let x = markerID * CARD_WIDTH + markerID * 20;
+    _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
   };
 
   const animateToRegion = (coords: any, speed: number) => {
@@ -151,8 +214,37 @@ export const Map = () => {
         showsMyLocationButton={false}
         onPanDrag={onPanDrag}
         mapType={"standard"}
-      ></MapView>
-      <BottomSheetController />
+      >
+        {markers.map((item, index) => {
+          const scaleStyle = {
+            transform: [{ scale: interpolations[index].scale }],
+          };
+          return (
+            <Marker
+              key={index}
+              coordinate={{
+                latitude: item.latitude,
+                longitude: item.longitude,
+              }}
+              title={"title"}
+              description={"description"}
+              onPress={handleOnMarkerPress}
+            >
+              <Animated.View style={[styles.markerWrap, scaleStyle]}>
+                <Animated.Image
+                  source={require("../assets/images/map_marker.png")}
+                  resizeMode="cover"
+                  style={[styles.marker]}
+                />
+              </Animated.View>
+            </Marker>
+          );
+        })}
+      </MapView>
+      <BottomSheetController
+        mapAnimation={mapAnimation}
+        _scrollViewRef={_scrollViewRef}
+      />
     </View>
   );
 };
@@ -186,5 +278,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 3,
     marginTop: 15,
+  },
+  markerWrap: {
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    width: 50,
+    height: 50,
+  },
+  marker: {
+    width: 30,
+    height: 30,
   },
 });
