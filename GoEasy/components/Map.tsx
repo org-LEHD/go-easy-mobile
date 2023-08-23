@@ -5,11 +5,14 @@ import {
   Text,
   InteractionManager,
   TouchableOpacity,
+  _ScrollView,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
+import { MapContext, AnimationContext } from "../context/mapContextProvider";
+import { Markers } from "./Markers"
 
 interface Coords {
   latitude: number | null;
@@ -21,6 +24,9 @@ interface Coords {
 export const Map = () => {
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
+  const {
+    markersContext
+  } = useContext(MapContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
@@ -150,7 +156,19 @@ export const Map = () => {
         showsMyLocationButton={false}
         onPanDrag={onPanDrag}
         mapType={"standard"}
-      ></MapView>
+      >
+        { userLocation && markersContext && (
+          <Markers
+          userLocation={{
+            latitude: userLocation.latitude,
+            longitude: userLocation.longitude,
+            latitudeDelta: userLocation.latitudeDelta,
+            longitudeDelta: userLocation.longitudeDelta,
+          }}
+          radius={300}
+          />
+        )}
+      </MapView>
     </View>
   );
 };

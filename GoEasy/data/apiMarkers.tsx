@@ -1,0 +1,32 @@
+const Images = [
+    { uri: "https://i.imgur.com/sNam9iJ.jpg" },
+    { uri: "https://i.imgur.com/N7rlQYt.jpg" },
+    { uri: "https://i.imgur.com/UDrH0wm.jpg" },
+    { uri: "https://i.imgur.com/Ka8kNST.jpg" },
+  ];
+  // Replace with api
+  export const initialMarkers = {
+    markers: [
+      {
+        coords: { latitude: 55.680594, longitude: 12.504901 },
+        title: "P. G. Ramms Allé rundkørsel",
+        image: Images[2],
+        id: 1,
+        category: "Museum",
+      },
+      {
+        coords: { latitude: 55.6802824, longitude: 12.5065854 },
+        title: "Lindevangskolen",
+        image: Images[1],
+        id: 2,
+        category: "Restaurant",
+      },
+      {
+        coords: { latitude: 55.680243, longitude: 12.511349 },
+        title: "Lindevangsparken",
+        image: Images[0],
+        id: 3,
+        category: "Restaurant",
+      },
+    ],
+  };
