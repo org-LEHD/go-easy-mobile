@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
+import BottomSheetController from "./BottomSheet/BottomSheetController";
 
 interface Coords {
   latitude: number | null;
@@ -151,6 +152,7 @@ export const Map = () => {
         onPanDrag={onPanDrag}
         mapType={"standard"}
       ></MapView>
+      <BottomSheetController />
     </View>
   );
 };
