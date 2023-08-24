@@ -14,13 +14,9 @@ import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
 import { BottomSheetController } from "./BottomSheet/BottomSheetController";
 import { CARD_WIDTH } from "../constants/constants";
-
-interface Coords {
-  latitude: number | null;
-  longitude: number | null;
-  latitudeDelta?: number | null;
-  longitudeDelta?: number | null;
-}
+import { MapContext, AnimationContext } from "../context/mapContextProvider";
+import { Markers } from "./Markers";
+import { Coords } from "./Types";
 
 export const Map = () => {
   const mapAnimation = useMemo(() => {
@@ -29,6 +25,7 @@ export const Map = () => {
 
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
+  const { markersContext } = useContext(MapContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
@@ -215,6 +212,11 @@ export const Map = () => {
         onPanDrag={onPanDrag}
         mapType={"standard"}
       >
+        {Object.values(userLocation)?.some((m) => m !== null) &&
+          markersContext && (
+            <Markers userLocation={userLocation} radius={300} />
+          )}
+
         {markers.map((item, index) => {
           const scaleStyle = {
             transform: [{ scale: interpolations[index].scale }],
