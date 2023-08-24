@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, Animated } from "react-native";
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useContext, useMemo, useRef } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import {
   WIDTH,
@@ -7,28 +7,14 @@ import {
   SPACING,
   CARD_HEIGHT,
 } from "../../constants/constants";
-import {
-  ScrollView,
-  gestureHandlerRootHOC,
-} from "react-native-gesture-handler";
+import { MapContext, AnimationContext } from "../../context/mapContextProvider";
 
-export const BottomSheetController = ({
-  mapAnimation,
-  _scrollViewRef,
-}: any) => {
+export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
+  const { markersContext, setMarkersContext } = useContext(MapContext);
+  const mapAnimation = useContext(AnimationContext);
+
   // hooks
   const sheetRef = useRef<BottomSheet>(null);
-  // const mapAnimation = useMemo(() => {
-  //   return new Animated.Value(0);
-  // }, []);
-  // variables
-  const data = useMemo(
-    () =>
-      Array(2)
-        .fill(0)
-        .map((_, index) => `index-${index}`),
-    []
-  );
 
   // callbacks
   const handleSheetChange = useCallback((index: any) => {
@@ -40,16 +26,6 @@ export const BottomSheetController = ({
   const handleClosePress = useCallback(() => {
     sheetRef.current?.close();
   }, []);
-
-  // render
-  const renderItem = useCallback(
-    (item: any) => (
-      <View key={item} style={styles.card}>
-        <Text>{item}</Text>
-      </View>
-    ),
-    []
-  );
 
   return (
     <BottomSheet
@@ -92,7 +68,11 @@ export const BottomSheetController = ({
         )}
         nestedScrollEnabled={true}
       >
-        {data.map(renderItem)}
+        {markersContext?.map((marker: any, index: number) => (
+          <View key={index} style={styles.card}>
+            <Text>{marker.title}</Text>
+          </View>
+        ))}
       </Animated.ScrollView>
     </BottomSheet>
   );

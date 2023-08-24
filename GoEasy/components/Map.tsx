@@ -8,24 +8,26 @@ import {
   Animated,
   ScrollView,
 } from "react-native";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
-import { BottomSheetController } from "./BottomSheet/BottomSheetController";
+import { BottomSheetMarkers } from "./BottomSheet/BottomSheetMarkers";
 import { CARD_WIDTH } from "../constants/constants";
 import { MapContext, AnimationContext } from "../context/mapContextProvider";
 import { Markers } from "./Markers";
 import { Coords } from "./Types";
+import { animateToRegion } from "../Utils/utils";
 
 export const Map = () => {
-  const mapAnimation = useMemo(() => {
-    return new Animated.Value(0);
-  }, []);
+  // const mapAnimation = useMemo(() => {
+  //   return new Animated.Value(0);
+  // }, []);
 
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
   const { markersContext } = useContext(MapContext);
+  const mapAnimation = useContext(AnimationContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
@@ -80,7 +82,7 @@ export const Map = () => {
     //triggered only after the user's interactions with the app have completed.
     //This can provide a smoother and more seamless user experience.
     InteractionManager.runAfterInteractions(() =>
-      animateToRegion(initialRegion.coords, 1)
+      animateToRegion(initialRegion.coords, 1, _mapRef)
     );
   }, [initialRegion]);
 
@@ -109,7 +111,7 @@ export const Map = () => {
     const { latitude, longitude } = userLocation;
     if (latitude && longitude && followUser) {
       // InteractionManager.runAfterInteractions(() =>
-      //   animateToRegion(userLocation, 350)
+      //   animateToRegion(userLocation, 350, _mapRef)
       // );
     }
   }, [userLocation, followUser]);
@@ -122,64 +124,31 @@ export const Map = () => {
     setFollowUser(true);
   };
 
-  const markers = [
-    { latitude: 55.827324, longitude: 12.248818 },
-    { latitude: 55.827564, longitude: 12.252668 },
-  ];
+  // const markers = [
+  //   { latitude: 55.827324, longitude: 12.248818 },
+  //   { latitude: 55.827564, longitude: 12.252668 },
+  // ];
 
-  useEffect(() => {
-    mapAnimation.addListener(({ value }) => {
-      //Create index from x coordinate we get from gesture
-      let index = Math.floor(value / CARD_WIDTH + 0.3);
-      console.log("fff", index);
-      //Exclude numbers below 0 and the total size of the array
-      index = Math.min(Math.max(index, 0), markers.length - 1);
-      //Get the coords from array
-      const { latitude, longitude } = markers[index] || {};
+  // const interpolations = markersContext.map((_: any, index: number) => {
+  //   const inputRange = [
+  //     (index - 1) * CARD_WIDTH,
+  //     index * CARD_WIDTH,
+  //     (index + 1) * CARD_WIDTH,
+  //   ];
+  //   const scale = mapAnimation.interpolate({
+  //     inputRange,
+  //     outputRange: [1, 1.5, 1],
+  //     extrapolate: "clamp",
+  //   });
 
-      const coords = {
-        latitude: latitude,
-        longitude: longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      };
+  //   return { scale };
+  // });
 
-      InteractionManager.runAfterInteractions(() =>
-        animateToRegion(coords, 350)
-      );
-    });
-    //Cleanup function. This will ensure that markers don't hold a reference to the initial state and uses the updated state.
-    return () => {
-      mapAnimation.removeAllListeners();
-    };
-  }, [markers]);
-
-  const interpolations = markers.map((_, index) => {
-    const inputRange = [
-      (index - 1) * CARD_WIDTH,
-      index * CARD_WIDTH,
-      (index + 1) * CARD_WIDTH,
-    ];
-    const scale = mapAnimation.interpolate({
-      inputRange,
-      outputRange: [1, 1.5, 1],
-      extrapolate: "clamp",
-    });
-
-    return { scale };
-  });
-
-  const handleOnMarkerPress = (e: any) => {
-    const markerID = e._targetInst.return.key;
-    let x = markerID * CARD_WIDTH + markerID * 20;
-    _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
-  };
-
-  const animateToRegion = (coords: any, speed: number) => {
-    if (_mapRef.current) {
-      _mapRef?.current?.animateToRegion(coords, speed);
-    }
-  };
+  // const handleOnMarkerPress = (e: any) => {
+  //   const markerID = e._targetInst.return.key;
+  //   let x = markerID * CARD_WIDTH + markerID * 20;
+  //   _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
+  // };
 
   return (
     <View
@@ -212,12 +181,17 @@ export const Map = () => {
         onPanDrag={onPanDrag}
         mapType={"standard"}
       >
+        {/* We check if any of the properties values in userLocation is null */}
         {Object.values(userLocation)?.some((m) => m !== null) &&
           markersContext && (
-            <Markers userLocation={userLocation} radius={300} />
+            <Markers
+              userLocation={userLocation}
+              radius={300}
+              _mapRef={_mapRef}
+            />
           )}
 
-        {markers.map((item, index) => {
+        {/* {markers.map((item, index) => {
           const scaleStyle = {
             transform: [{ scale: interpolations[index].scale }],
           };
@@ -241,12 +215,9 @@ export const Map = () => {
               </Animated.View>
             </Marker>
           );
-        })}
+        })} */}
       </MapView>
-      <BottomSheetController
-        mapAnimation={mapAnimation}
-        _scrollViewRef={_scrollViewRef}
-      />
+      <BottomSheetMarkers _scrollViewRef={_scrollViewRef} />
     </View>
   );
 };
