@@ -13,13 +13,7 @@ import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
 import { MapContext, AnimationContext } from "../context/mapContextProvider";
 import { Markers } from "./Markers"
-
-interface Coords {
-  latitude: number | null;
-  longitude: number | null;
-  latitudeDelta?: number | null;
-  longitudeDelta?: number | null;
-}
+import { Coords } from "./Types";
 
 export const Map = () => {
   //Safearea for contents on the device
@@ -157,14 +151,9 @@ export const Map = () => {
         onPanDrag={onPanDrag}
         mapType={"standard"}
       >
-        { userLocation && markersContext && (
+        { Object.values(userLocation)?.some((m) => m !== null) && markersContext && (
           <Markers
-          userLocation={{
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-            latitudeDelta: userLocation.latitudeDelta,
-            longitudeDelta: userLocation.longitudeDelta,
-          }}
+          userLocation={userLocation}
           radius={300}
           />
         )}
