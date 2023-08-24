@@ -17,18 +17,20 @@ interface MarkersProps {
   radius: number;
   userLocation: Coords;
   _mapRef: MutableRefObject<MapView | null>;
+  handleOnMarkerPress: (event: any) => void;
 }
 
 export const Markers: FC<MarkersProps> = ({
   radius,
   userLocation,
   _mapRef,
+  handleOnMarkerPress,
 }) => {
   const { markersContext, setMarkersContext } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
 
   const filteredMarkers = useMemo(() => {
-    const addDistanceToMarkers = markersContext.map((marker: any) => {
+    const addDistanceToMarkers = markersContext?.map((marker: any) => {
       const { latitude, longitude } = userLocation;
       const coords = {
         location: { latitude, longitude },
@@ -39,7 +41,7 @@ export const Markers: FC<MarkersProps> = ({
     });
 
     return addDistanceToMarkers
-      .filter((marker: any) => marker.distance <= radius)
+      ?.filter((marker: any) => marker.distance <= radius)
       .sort((a: any, b: any) => a.distance - b.distance);
   }, [userLocation]);
 
@@ -48,7 +50,7 @@ export const Markers: FC<MarkersProps> = ({
   }, [filteredMarkers]);
 
   useEffect(() => {
-    mapAnimation.addListener(({ value }: any) => {
+    mapAnimation?.addListener(({ value }: any) => {
       //Create index from x coordinate we get from gesture
       let index = Math.floor(value / CARD_WIDTH + 0.3);
       //Exclude numbers below 0 and the total size of the array
@@ -66,20 +68,24 @@ export const Markers: FC<MarkersProps> = ({
     });
     //Cleanup function. This will ensure that markers don't hold a reference to the initial state and uses the updated state.
     return () => {
-      mapAnimation.removeAllListeners();
+      mapAnimation?.removeAllListeners();
     };
   }, [markersContext]);
 
   return (
     <>
-      {markersContext?.map((marker: any) => {
+      {markersContext?.map((marker: any, index: number) => {
         const markerImageSource =
           marker.id !== null
             ? require("../assets/map_marker.png")
             : require("../assets/map_favorite.png");
 
         return (
-          <Marker coordinate={marker.coords} key={marker.id}>
+          <Marker
+            coordinate={marker.coords}
+            key={marker.id}
+            onPress={() => handleOnMarkerPress(index)}
+          >
             <Animated.View style={[styles.markerWrap]}>
               <Animated.Image
                 source={markerImageSource}

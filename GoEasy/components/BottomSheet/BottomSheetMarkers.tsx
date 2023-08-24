@@ -63,7 +63,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
             {
               nativeEvent: {
                 contentOffset: {
-                  x: mapAnimation,
+                  x: mapAnimation!, // The ! symbol indicates to TypeScript that we are sure mapAnimation won't be null at this point
                 },
               },
             },

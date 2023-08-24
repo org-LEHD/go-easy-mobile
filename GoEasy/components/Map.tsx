@@ -145,11 +145,10 @@ export const Map = () => {
   //   return { scale };
   // });
 
-  // const handleOnMarkerPress = (e: any) => {
-  //   const markerID = e._targetInst.return.key;
-  //   let x = markerID * CARD_WIDTH + markerID * 20;
-  //   _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
-  // };
+  const animationScrollTo = (index: number) => {
+    let x = index * CARD_WIDTH + index * 20;
+    _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
+  };
 
   return (
     <View
@@ -189,6 +188,7 @@ export const Map = () => {
               userLocation={userLocation}
               radius={300}
               _mapRef={_mapRef}
+              handleOnMarkerPress={animationScrollTo}
             />
           )}
 
