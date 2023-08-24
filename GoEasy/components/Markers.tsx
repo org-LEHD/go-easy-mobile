@@ -50,9 +50,7 @@ export const Markers: FC<MarkersProps> = ({
   useEffect(() => {
     mapAnimation.addListener(({ value }: any) => {
       //Create index from x coordinate we get from gesture
-      console.log(markersContext[1]);
       let index = Math.floor(value / CARD_WIDTH + 0.3);
-      console.log("fff", index);
       //Exclude numbers below 0 and the total size of the array
       index = Math.min(Math.max(index, 0), markersContext.length - 1);
       //Get the coords from array

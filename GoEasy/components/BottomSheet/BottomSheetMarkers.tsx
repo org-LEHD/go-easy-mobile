@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, Animated } from "react-native";
+import { StyleSheet, View, Text, Animated, PixelRatio } from "react-native";
 import React, { useCallback, useContext, useMemo, useRef } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import {
@@ -6,8 +6,12 @@ import {
   CARD_WIDTH,
   SPACING,
   CARD_HEIGHT,
+  HEIGHT,
+  FLEX_HEIGHT,
 } from "../../constants/constants";
 import { MapContext, AnimationContext } from "../../context/mapContextProvider";
+import { BottomSheetMarkerHeader } from "./BottomsheetMarkerHeader";
+import { BottomSheetMarkerMeta } from "./BottomsheetMarkerMeta";
 
 export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
   const { markersContext, setMarkersContext } = useContext(MapContext);
@@ -30,7 +34,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
   return (
     <BottomSheet
       ref={sheetRef}
-      index={1}
+      index={0}
       snapPoints={["12%", "37%"]}
       enablePanDownToClose={false}
       enableContentPanningGesture={false} // This is needed to make Aninmated.scrollview work in android
@@ -46,13 +50,13 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
         scrollEnabled={true}
         scrollEventThrottle={1}
         showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + SPACING}
-        snapToAlignment="center"
+        snapToInterval={CARD_WIDTH + SPACING * 0.8}
+        snapToAlignment="start"
         contentInset={{
           top: 0,
-          left: 0,
+          left: CARD_WIDTH * 0.0045,
           bottom: 0,
-          right: 0,
+          right: CARD_WIDTH * 0.0085,
         }}
         onScroll={Animated.event(
           [
@@ -70,7 +74,8 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
       >
         {markersContext?.map((marker: any, index: number) => (
           <View key={index} style={styles.card}>
-            <Text>{marker.title}</Text>
+            <BottomSheetMarkerHeader title={marker.title} />
+            <BottomSheetMarkerMeta marker={marker} />
           </View>
         ))}
       </Animated.ScrollView>
@@ -81,7 +86,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
 const styles = StyleSheet.create({
   scrollView: {
     position: "absolute",
-    top: 0,
+    top: FLEX_HEIGHT ? 15 : 0,
     bottom: 0,
     left: SPACING,
     right: SPACING,
@@ -89,8 +94,8 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     marginHorizontal: WIDTH * 0.02,
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    backgroundColor: "#eee",
+    alignItems: "center",
+    height: FLEX_HEIGHT ? CARD_HEIGHT * 0.5 : CARD_HEIGHT * 0.45,
+    backgroundColor: "transparent",
   },
 });

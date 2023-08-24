@@ -2,15 +2,20 @@ import React from "react";
 import { View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-export const Arrow = ({ left, right, ...props }: any) => {
+export const Arrow = ({ left, right, scale, ...props }: any) => {
   const deg = left ? "-90deg" : right ? "90deg" : "0deg";
+  if (scale === undefined) scale = 1;
+  const viewBoxWidth = 23.89; // Original viewBox width
+  const viewBoxHeight = 13.66; // Original viewBox height
+  const scaledWidth = viewBoxWidth * scale;
+  const scaledHeight = viewBoxHeight * scale;
   return (
     <View style={{ aspectRatio: 1 }}>
       <Svg
         xmlns="http://www.w3.org/2000/svg"
-        width="100%"
-        height="100%"
-        viewBox="0 0 23.89 13.66"
+        width={scaledWidth}
+        height={scaledHeight}
+        viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
         style={{ transform: [{ rotate: deg }] }}
         {...props}
       >

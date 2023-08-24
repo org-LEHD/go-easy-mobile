@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
 import { BottomSheetMarkers } from "./BottomSheet/BottomSheetMarkers";
-import { CARD_WIDTH } from "../constants/constants";
+import { CARD_WIDTH, HEIGHT } from "../constants/constants";
 import { MapContext, AnimationContext } from "../context/mapContextProvider";
 import { Markers } from "./Markers";
 import { Coords } from "./Types";
@@ -43,6 +43,7 @@ export const Map = () => {
     latitude: null,
     longitude: null,
   });
+  const [mapHeight, setMapHeight] = useState<number>(0);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
