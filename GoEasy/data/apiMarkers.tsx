@@ -28,5 +28,14 @@ const Images = [
         id: 3,
         category: "Restaurant",
       },
+      {
+        coords: { latitude: 55.69225938580311, longitude: 12.495259665695695 },
+        title: "Skibelundvej 9",
+        description: "This is the best place in Portland",
+        image: Images[2],
+        id: 7,
+        distance: 0,
+        category: "Restaurant"
+      },
     ],
   };
