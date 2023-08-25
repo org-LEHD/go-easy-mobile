@@ -1,18 +1,36 @@
 import React, { useEffect } from "react";
 // import { initialMarkers } from "../data/api";
-import { initialMarkers } from "./../data/apiMarkers";
+import { initialMarkers } from "../data/apiMarkers";
+import { Animated } from "react-native";
 
-export const AnimationContext = React.createContext();
+interface AppState {
+  markersContext: any | null;
+  setMarkersContext: any | null;
+}
 
-const initialState = {
+interface Action {
+  type: string;
+  value: any;
+}
+
+interface MapContextProviderProps {
+  children: React.ReactNode;
+}
+
+export const AnimationContext = React.createContext<Animated.Value | null>(
+  null
+);
+
+const initialState: AppState = {
   markersContext: null,
+  setMarkersContext: null,
 };
 
 const actions = {
   SET_MARKERSCONTEXT: "SET_MARKERSCONTEXT",
 };
 
-function reducer(state, action) {
+function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case actions.SET_MARKERSCONTEXT:
       return { ...state, markersContext: action.value };
@@ -21,9 +39,9 @@ function reducer(state, action) {
   }
 }
 
-export const MapContext = React.createContext();
+export const MapContext = React.createContext<AppState>(initialState);
 
-export function MapContextProvider({ children }) {
+export function MapContextProvider({ children }: MapContextProviderProps) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
   useEffect(() => {
     dispatch({
@@ -34,7 +52,7 @@ export function MapContextProvider({ children }) {
 
   const value = {
     markersContext: state.markersContext,
-    setMarkersContext: (value) => {
+    setMarkersContext: (value: AppState) => {
       dispatch({ type: actions.SET_MARKERSCONTEXT, value });
     },
   };

@@ -1,33 +1,46 @@
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import {
   StyleSheet,
   View,
   Text,
   InteractionManager,
   TouchableOpacity,
-  _ScrollView,
+  ScrollView,
 } from "react-native";
-import React, { useEffect, useRef, useState, useContext } from "react";
+import React, {
+  MutableRefObject,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
+import { BottomSheetMarkers } from "./BottomSheet/BottomSheetMarkers";
+import { CARD_WIDTH, HEIGHT } from "../constants/constants";
 import { MapContext, AnimationContext } from "../context/mapContextProvider";
-import { Markers } from "./Markers"
+import { Markers } from "./Markers";
 import { Coords } from "./Types";
+import { animateToRegion } from "../Utils/utils";
 
 export const Map = () => {
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
-  const {
-    markersContext
-  } = useContext(MapContext);
+  const { markersContext } = useContext(MapContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
+  const _scrollViewRef = useRef<ScrollView | null>(null);
+  const _debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  //We use useRef to avoid unnecessary state update
   const _previousUserLocation = useRef<Coords>({
     latitude: null,
     longitude: null,
   });
+
+  //Define useStates for later use
   const [followUser, setFollowUser] = useState<boolean>(true);
   const [userLocation, setUserLocation] = useState<Coords>({
     latitude: null,
@@ -44,41 +57,44 @@ export const Map = () => {
     },
   });
 
-  useEffect(() => {
-    //The callback function is executed after the async operation, it will
-    // will await the promise before proceeding whith the logic.
-    usePermission(function (result: Coords) {
-      try {
-        if (result.latitude !== null && result.longitude !== null) {
-          setInitialRegion({
-            ...initialRegion,
-            coords: {
-              ...initialRegion.coords,
-              latitude: result.latitude,
-              longitude: result.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            },
-          });
+  //Using an empty dependency array with useMemo helps to avoid unnecessary permission calls on state change
+  const location: any = useMemo(
+    () =>
+      //The callback function is executed after the async operation, it will
+      // will await the promise before proceeding whith the logic.
+      usePermission(function (result: Coords) {
+        try {
+          if (result.latitude !== null && result.longitude !== null) {
+            setInitialRegion({
+              ...initialRegion,
+              coords: {
+                ...initialRegion.coords,
+                latitude: result.latitude,
+                longitude: result.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              },
+            });
+          }
+        } catch (error) {
+          console.error("An error occurred:", error);
         }
-      } catch (error) {
-        console.error("An error occurred:", error);
-      }
-    });
-  }, []);
+      }),
+    []
+  );
 
   useEffect(() => {
     //By using InteractionManager.runAfterInteractions(), we can ensure that the animation is
     //triggered only after the user's interactions with the app have completed.
     //This can provide a smoother and more seamless user experience.
     InteractionManager.runAfterInteractions(() =>
-      animateToRegion(initialRegion.coords, 1)
+      animateToRegion(initialRegion.coords, 1, _mapRef)
     );
   }, [initialRegion]);
 
   const onUserLocationChange = (e: any) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
-
+    // console.log(latitude, _previousUserLocation.current.latitude);
     //The property onUserLocationChange will keep update with coords
     //even when coords haven't changed. For this not to be to expencive we only need
     //to update users location when moving device.
@@ -86,22 +102,32 @@ export const Map = () => {
       latitude !== _previousUserLocation.current.latitude ||
       longitude !== _previousUserLocation.current.longitude
     ) {
-      setUserLocation({
-        ...userLocation,
-        latitude: latitude,
-        longitude: longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
+      //Debounce will reduce result to only recent updates ensuring a pause where we can execute other commands
+      //in this case we wan't to pan and stop the updates and animations caused of this.
+      if (_debounceRef.current !== null) {
+        clearTimeout(_debounceRef.current);
+      }
+      _debounceRef.current = setTimeout(() => {
+        console.log("update");
+        setUserLocation({
+          ...userLocation,
+          latitude: latitude,
+          longitude: longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+      }, 800);
     }
+    //Save the state for later use
     _previousUserLocation.current = { latitude, longitude };
   };
 
   useEffect(() => {
+    if (followUser === false) return;
     const { latitude, longitude } = userLocation;
-    if (latitude && longitude && followUser) {
+    if (latitude && longitude) {
       InteractionManager.runAfterInteractions(() =>
-        animateToRegion(userLocation, 350)
+        animateToRegion(userLocation, 350, _mapRef)
       );
     }
   }, [userLocation, followUser]);
@@ -112,12 +138,6 @@ export const Map = () => {
 
   const handleFollowUser = () => {
     setFollowUser(true);
-  };
-
-  const animateToRegion = (coords: any, speed: number) => {
-    if (_mapRef.current) {
-      _mapRef?.current?.animateToRegion(coords, speed);
-    }
   };
 
   return (
@@ -151,13 +171,18 @@ export const Map = () => {
         onPanDrag={onPanDrag}
         mapType={"standard"}
       >
-        { Object.values(userLocation)?.some((m) => m !== null) && markersContext && (
-          <Markers
-          userLocation={userLocation}
-          radius={300}
-          />
-        )}
+        {/* We check if any of the properties values in userLocation is null */}
+        {Object.values(userLocation)?.some((m) => m !== null) &&
+          markersContext && (
+            <Markers
+              userLocation={userLocation}
+              radius={300}
+              _mapRef={_mapRef}
+              _scrollViewRef={_scrollViewRef}
+            />
+          )}
       </MapView>
+      <BottomSheetMarkers _scrollViewRef={_scrollViewRef} />
     </View>
   );
 };
@@ -191,5 +216,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 3,
     marginTop: 15,
+  },
+  markerWrap: {
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    width: 50,
+    height: 50,
+  },
+  marker: {
+    width: 30,
+    height: 30,
   },
 });
