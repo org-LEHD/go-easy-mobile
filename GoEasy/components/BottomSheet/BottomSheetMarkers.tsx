@@ -1,18 +1,18 @@
-import { StyleSheet, View, Text, Animated, PixelRatio } from "react-native";
+import { StyleSheet, View, Text, Animated } from "react-native";
 import React, {
   useCallback,
   useContext,
-  useMemo,
+  useEffect,
   useRef,
   useState,
 } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
+import { ScrollView } from "react-native-gesture-handler";
 import {
   WIDTH,
   CARD_WIDTH,
   SPACING,
   CARD_HEIGHT,
-  HEIGHT,
   FLEX_HEIGHT,
 } from "../../constants/constants";
 import { MapContext, AnimationContext } from "../../context/mapContextProvider";
@@ -20,45 +20,43 @@ import { BottomSheetMarkerHeader } from "./BottomsheetMarkerHeader";
 import { BottomSheetMarkerMeta } from "./BottomsheetMarkerMeta";
 import { BottomSheetMarkerDesc } from "./BottomsheetMarkerDesc";
 
-export const BottomSheetMarkers = ({ _scrollViewRef, _snapRef }: any) => {
+export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
   const { markersContext, setMarkersContext } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
   const [scrollEnabled, setScrollEnabled] = useState(false);
+  const [gestureIndex, setGestureIndex] = useState<number>(0);
 
-  // hooks
-  const sheetRef = useRef<BottomSheet>(null);
+  // useRefs
+  const _sheetRef = useRef<BottomSheet>(null);
 
-  // useEffect(() => {
-  //   if (bottomSheetContextIndex === -1) {
-  //     _sheetRef.current.close();
-  //   }
-  // }, [bottomSheetContextIndex]);
+  //open or closed state for the bottomsheet
+  useEffect(() => {
+    if (markersContext?.length === 0) _sheetRef.current?.close();
+  }, [markersContext]);
 
   // callbacks
   const handleSheetChange = useCallback((snap: any) => {
-    console.log("handleSheetChange", snap);
-    // _snapRef.current = snap;
     setScrollEnabled((prev) => !prev);
   }, []);
   const handleSnapPress = useCallback((index: any) => {
-    sheetRef.current?.snapToIndex(index);
+    _sheetRef.current?.snapToIndex(index);
   }, []);
   const handleClosePress = useCallback(() => {
-    sheetRef.current?.close();
+    _sheetRef.current?.close();
   }, []);
 
   return (
     <BottomSheet
-      ref={sheetRef}
+      ref={_sheetRef}
       index={0}
       snapPoints={["12%", "37%"]}
       enablePanDownToClose={false}
-      enableContentPanningGesture={false} // This is needed to make Aninmated.scrollview work in android
+      enableContentPanningGesture={true} // Make gesture possible with content
       enableOverDrag={true}
       enableHandlePanningGesture={true}
       onChange={handleSheetChange}
     >
-      <Animated.ScrollView
+      <ScrollView
         ref={_scrollViewRef}
         style={styles.scrollView}
         horizontal
@@ -84,7 +82,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef, _snapRef }: any) => {
               },
             },
           ],
-          { useNativeDriver: true }
+          { useNativeDriver: false }
         )}
         nestedScrollEnabled={true}
       >
@@ -95,7 +93,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef, _snapRef }: any) => {
             <BottomSheetMarkerDesc />
           </View>
         ))}
-      </Animated.ScrollView>
+      </ScrollView>
     </BottomSheet>
   );
 };
@@ -110,7 +108,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    marginHorizontal: WIDTH * 0.02,
+    marginHorizontal: WIDTH * 0.01,
     alignItems: "center",
     height: FLEX_HEIGHT ? CARD_HEIGHT * 0.5 : CARD_HEIGHT * 0.45,
     backgroundColor: "transparent",
