@@ -5,8 +5,8 @@ import {
   Text,
   InteractionManager,
   TouchableOpacity,
-  _ScrollView,
 } from "react-native";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
@@ -18,6 +18,7 @@ import { Coords } from "./Types";
 export const Map = () => {
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const {
     markersContext
   } = useContext(MapContext);
@@ -138,6 +139,14 @@ export const Map = () => {
           onPress={handleFollowUser}
         >
           <SVGIcons.Center />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.toolbarIcon]}
+          onPress={() => {
+            router.push(`../../home/${1}`);
+          }}
+        >
+          <SVGIcons.Home />
         </TouchableOpacity>
       </View>
       <MapView
