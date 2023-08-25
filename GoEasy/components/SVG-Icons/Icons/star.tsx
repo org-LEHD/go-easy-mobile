@@ -1,13 +1,18 @@
 import React from "react";
 import Svg, { Path } from "react-native-svg";
 
-export const Star = (props: any) => {
+export const Star = ({ scale, ...props }: any) => {
+  if (scale === undefined) scale = 1;
+  const viewBoxWidth = 14.272; // Original viewBox width
+  const viewBoxHeight = 13.38; // Original viewBox height
+  const scaledWidth = viewBoxWidth * scale;
+  const scaledHeight = viewBoxHeight * scale;
   return (
     <Svg
       xmlns="http://www.w3.org/2000/svg"
-      width="14.272"
-      height="13.38"
-      viewBox="0 0 14.272 13.38"
+      width={scaledWidth}
+      height={scaledHeight}
+      viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
       {...props}
     >
       <Path
