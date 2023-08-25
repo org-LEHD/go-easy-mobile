@@ -10,7 +10,9 @@ export const BottomSheetMarkerHeader = ({ title }: any) => {
   return (
     <>
       <View style={[styles.row]}>
-        <Text style={styles.header}>{title}</Text>
+        <Text ellipsizeMode="tail" numberOfLines={3} style={styles.header}>
+          {title}
+        </Text>
       </View>
     </>
   );
