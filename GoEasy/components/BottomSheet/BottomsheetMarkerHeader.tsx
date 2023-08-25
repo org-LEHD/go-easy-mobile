@@ -22,8 +22,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: FLEX_HEIGHT ? CARD_HEIGHT * 0.5 : CARD_HEIGHT * 0.45,
+    width: CARD_WIDTH,
   },
   header: {
-    fontSize: FLEX_HEIGHT ? 16 + CARD_HEIGHT * 0.2 : 16 + CARD_HEIGHT * 0.1,
+    fontSize: FLEX_HEIGHT ? 16 + CARD_HEIGHT * 0.15 : 16 + CARD_HEIGHT * 0.1,
   },
 });

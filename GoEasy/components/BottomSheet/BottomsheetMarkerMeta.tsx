@@ -37,7 +37,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     width: CARD_WIDTH,
-    marginVertical: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
   leftCol: {
     flex: 1,

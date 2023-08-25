@@ -1,5 +1,11 @@
 import { StyleSheet, View, Text, Animated, PixelRatio } from "react-native";
-import React, { useCallback, useContext, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import {
   WIDTH,
@@ -12,17 +18,27 @@ import {
 import { MapContext, AnimationContext } from "../../context/mapContextProvider";
 import { BottomSheetMarkerHeader } from "./BottomsheetMarkerHeader";
 import { BottomSheetMarkerMeta } from "./BottomsheetMarkerMeta";
+import { BottomSheetMarkerDesc } from "./BottomsheetMarkerDesc";
 
-export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
+export const BottomSheetMarkers = ({ _scrollViewRef, _snapRef }: any) => {
   const { markersContext, setMarkersContext } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
+  const [scrollEnabled, setScrollEnabled] = useState(false);
 
   // hooks
   const sheetRef = useRef<BottomSheet>(null);
 
+  // useEffect(() => {
+  //   if (bottomSheetContextIndex === -1) {
+  //     _sheetRef.current.close();
+  //   }
+  // }, [bottomSheetContextIndex]);
+
   // callbacks
-  const handleSheetChange = useCallback((index: any) => {
-    console.log("handleSheetChange", index);
+  const handleSheetChange = useCallback((snap: any) => {
+    console.log("handleSheetChange", snap);
+    // _snapRef.current = snap;
+    setScrollEnabled((prev) => !prev);
   }, []);
   const handleSnapPress = useCallback((index: any) => {
     sheetRef.current?.snapToIndex(index);
@@ -47,7 +63,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
         style={styles.scrollView}
         horizontal
         pagingEnabled
-        scrollEnabled={true}
+        scrollEnabled={scrollEnabled}
         scrollEventThrottle={1}
         showsHorizontalScrollIndicator={false}
         snapToInterval={CARD_WIDTH + SPACING * 0.8}
@@ -76,6 +92,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
           <View key={index} style={styles.card}>
             <BottomSheetMarkerHeader title={marker.title} />
             <BottomSheetMarkerMeta marker={marker} />
+            <BottomSheetMarkerDesc />
           </View>
         ))}
       </Animated.ScrollView>
