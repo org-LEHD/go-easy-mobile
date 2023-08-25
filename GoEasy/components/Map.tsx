@@ -159,12 +159,6 @@ export const Map = () => {
         >
           <SVGIcons.Center />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.toolbarIcon]}
-          onPress={handleFollowUser}
-        >
-          {followUser && <SVGIcons.Star />}
-        </TouchableOpacity>
       </View>
       <MapView
         ref={_mapRef}
