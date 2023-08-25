@@ -5,7 +5,12 @@ import React, {
   MutableRefObject,
   useMemo,
 } from "react";
-import { Animated, InteractionManager, StyleSheet } from "react-native";
+import {
+  Animated,
+  InteractionManager,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { MapContext, AnimationContext } from "../context/mapContextProvider";
 import { useDistancePrecise } from "../hooks/useDistance";
@@ -17,14 +22,14 @@ interface MarkersProps {
   radius: number;
   userLocation: Coords;
   _mapRef: MutableRefObject<MapView | null>;
-  handleOnMarkerPress: (event: any) => void;
+  _scrollViewRef: MutableRefObject<ScrollView | null>;
 }
 
 export const Markers: FC<MarkersProps> = ({
   radius,
   userLocation,
   _mapRef,
-  handleOnMarkerPress,
+  _scrollViewRef,
 }) => {
   const { markersContext, setMarkersContext } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
@@ -72,9 +77,31 @@ export const Markers: FC<MarkersProps> = ({
     };
   }, [markersContext]);
 
+  const interpolations = markersContext?.map((_: undefined, index: number) => {
+    const inputRange = [
+      (index - 1) * CARD_WIDTH,
+      index * CARD_WIDTH,
+      (index + 1) * CARD_WIDTH,
+    ];
+    const scale = mapAnimation?.interpolate({
+      inputRange,
+      outputRange: [1, 1.5, 1],
+      extrapolate: "clamp",
+    });
+    return { scale };
+  });
+
+  const handleOnMarkerPress = (index: number) => {
+    let x = index * CARD_WIDTH + index * 20;
+    _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
+  };
+
   return (
     <>
       {markersContext?.map((marker: any, index: number) => {
+        const scaleStyle = {
+          transform: [{ scale: interpolations[index].scale }],
+        };
         const markerImageSource =
           marker.id !== null
             ? require("../assets/map_marker.png")
@@ -86,7 +113,7 @@ export const Markers: FC<MarkersProps> = ({
             key={marker.id}
             onPress={() => handleOnMarkerPress(index)}
           >
-            <Animated.View style={[styles.markerWrap]}>
+            <Animated.View style={[styles.markerWrap, scaleStyle]}>
               <Animated.Image
                 source={markerImageSource}
                 style={[styles.marker]}

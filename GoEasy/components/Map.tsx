@@ -5,10 +5,16 @@ import {
   Text,
   InteractionManager,
   TouchableOpacity,
-  Animated,
   ScrollView,
 } from "react-native";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  MutableRefObject,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
@@ -20,22 +26,19 @@ import { Coords } from "./Types";
 import { animateToRegion } from "../Utils/utils";
 
 export const Map = () => {
-  // const mapAnimation = useMemo(() => {
-  //   return new Animated.Value(0);
-  // }, []);
-
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
   const { markersContext } = useContext(MapContext);
-  const mapAnimation = useContext(AnimationContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
+  const _scrollViewRef = useRef<ScrollView | null>(null);
+  const _debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  //We use useRef to avoid unnecessary state update
   const _previousUserLocation = useRef<Coords>({
     latitude: null,
     longitude: null,
   });
-  const _scrollViewRef = useRef<ScrollView | null>(null);
 
   //Define useStates for later use
   const [followUser, setFollowUser] = useState<boolean>(true);
@@ -43,7 +46,6 @@ export const Map = () => {
     latitude: null,
     longitude: null,
   });
-  const [mapHeight, setMapHeight] = useState<number>(0);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -55,28 +57,31 @@ export const Map = () => {
     },
   });
 
-  useEffect(() => {
-    //The callback function is executed after the async operation, it will
-    // will await the promise before proceeding whith the logic.
-    usePermission(function (result: Coords) {
-      try {
-        if (result.latitude !== null && result.longitude !== null) {
-          setInitialRegion({
-            ...initialRegion,
-            coords: {
-              ...initialRegion.coords,
-              latitude: result.latitude,
-              longitude: result.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            },
-          });
+  //Using an empty dependency array with useMemo helps to avoid unnecessary permission calls on state change
+  const location: any = useMemo(
+    () =>
+      //The callback function is executed after the async operation, it will
+      // will await the promise before proceeding whith the logic.
+      usePermission(function (result: Coords) {
+        try {
+          if (result.latitude !== null && result.longitude !== null) {
+            setInitialRegion({
+              ...initialRegion,
+              coords: {
+                ...initialRegion.coords,
+                latitude: result.latitude,
+                longitude: result.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              },
+            });
+          }
+        } catch (error) {
+          console.error("An error occurred:", error);
         }
-      } catch (error) {
-        console.error("An error occurred:", error);
-      }
-    });
-  }, []);
+      }),
+    []
+  );
 
   useEffect(() => {
     //By using InteractionManager.runAfterInteractions(), we can ensure that the animation is
@@ -89,7 +94,7 @@ export const Map = () => {
 
   const onUserLocationChange = (e: any) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
-
+    // console.log(latitude, _previousUserLocation.current.latitude);
     //The property onUserLocationChange will keep update with coords
     //even when coords haven't changed. For this not to be to expencive we only need
     //to update users location when moving device.
@@ -97,23 +102,33 @@ export const Map = () => {
       latitude !== _previousUserLocation.current.latitude ||
       longitude !== _previousUserLocation.current.longitude
     ) {
-      setUserLocation({
-        ...userLocation,
-        latitude: latitude,
-        longitude: longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
+      //Debounce will reduce result to only recent updates ensuring a pause where we can execute other commands
+      //in this case we wan't to pan and stop the updates and animations caused of this.
+      if (_debounceRef.current !== null) {
+        clearTimeout(_debounceRef.current);
+      }
+      _debounceRef.current = setTimeout(() => {
+        console.log("update");
+        setUserLocation({
+          ...userLocation,
+          latitude: latitude,
+          longitude: longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+      }, 800);
     }
+    //Save the state for later use
     _previousUserLocation.current = { latitude, longitude };
   };
 
   useEffect(() => {
+    if (followUser === false) return;
     const { latitude, longitude } = userLocation;
-    if (latitude && longitude && followUser) {
-      // InteractionManager.runAfterInteractions(() =>
-      //   animateToRegion(userLocation, 350, _mapRef)
-      // );
+    if (latitude && longitude) {
+      InteractionManager.runAfterInteractions(() =>
+        animateToRegion(userLocation, 350, _mapRef)
+      );
     }
   }, [userLocation, followUser]);
 
@@ -123,31 +138,6 @@ export const Map = () => {
 
   const handleFollowUser = () => {
     setFollowUser(true);
-  };
-
-  // const markers = [
-  //   { latitude: 55.827324, longitude: 12.248818 },
-  //   { latitude: 55.827564, longitude: 12.252668 },
-  // ];
-
-  // const interpolations = markersContext.map((_: any, index: number) => {
-  //   const inputRange = [
-  //     (index - 1) * CARD_WIDTH,
-  //     index * CARD_WIDTH,
-  //     (index + 1) * CARD_WIDTH,
-  //   ];
-  //   const scale = mapAnimation.interpolate({
-  //     inputRange,
-  //     outputRange: [1, 1.5, 1],
-  //     extrapolate: "clamp",
-  //   });
-
-  //   return { scale };
-  // });
-
-  const animationScrollTo = (index: number) => {
-    let x = index * CARD_WIDTH + index * 20;
-    _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
   };
 
   return (
@@ -169,6 +159,12 @@ export const Map = () => {
         >
           <SVGIcons.Center />
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.toolbarIcon]}
+          onPress={handleFollowUser}
+        >
+          {followUser && <SVGIcons.Star />}
+        </TouchableOpacity>
       </View>
       <MapView
         ref={_mapRef}
@@ -188,35 +184,9 @@ export const Map = () => {
               userLocation={userLocation}
               radius={300}
               _mapRef={_mapRef}
-              handleOnMarkerPress={animationScrollTo}
+              _scrollViewRef={_scrollViewRef}
             />
           )}
-
-        {/* {markers.map((item, index) => {
-          const scaleStyle = {
-            transform: [{ scale: interpolations[index].scale }],
-          };
-          return (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: item.latitude,
-                longitude: item.longitude,
-              }}
-              title={"title"}
-              description={"description"}
-              onPress={handleOnMarkerPress}
-            >
-              <Animated.View style={[styles.markerWrap, scaleStyle]}>
-                <Animated.Image
-                  source={require("../assets/images/map_marker.png")}
-                  resizeMode="cover"
-                  style={[styles.marker]}
-                />
-              </Animated.View>
-            </Marker>
-          );
-        })} */}
       </MapView>
       <BottomSheetMarkers _scrollViewRef={_scrollViewRef} />
     </View>

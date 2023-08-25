@@ -32,9 +32,9 @@ export const usePermission = async (callback: LocationCallback) => {
     foregroundSubscription = await Location.watchPositionAsync(
       {
         // For better logs, we set the accuracy to the most sensitive option
-        accuracy: Location.Accuracy.High,
-        // timeInterval: 1000,
-        // distanceInterval: 1,
+        accuracy: Location.Accuracy.Highest,
+        // timeInterval: 1000, not working
+        // distanceInterval: 1, not working
       },
       (location) => {
         if (location.coords === null) return;

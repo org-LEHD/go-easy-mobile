@@ -51,7 +51,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
         scrollEventThrottle={1}
         showsHorizontalScrollIndicator={false}
         snapToInterval={CARD_WIDTH + SPACING * 0.8}
-        snapToAlignment="start"
+        snapToAlignment="center"
         contentInset={{
           top: 0,
           left: CARD_WIDTH * 0.0045,
