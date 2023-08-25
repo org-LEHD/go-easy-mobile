@@ -1,4 +1,5 @@
 import { ScrollView, View, Text, StyleSheet } from "react-native";
+import { Video } from "expo-av";
 import React, { useContext, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "expo-router";
 import { MapContext } from "../../../context/mapContextProvider"
@@ -15,11 +16,22 @@ const home = () => {
 
   return (
     <ScrollView style={styles.container}>
-
+      <View style={styles.row}>
+        <Video
+          ref={video}
+          style={styles.video}
+          source={require("../../../assets/pizza.mp4")}
+          resizeMode="contain"
+          isLooping
+          onPlaybackStatusUpdate={setStatus}
+          shouldPlay
+        />
+      </View>
       <View style={styles.row}>
         <View style={styles.headerBox}>
           <Text style={styles.header}>
-            {selectedMarker && selectedMarker.title}</Text>
+            {selectedMarker && selectedMarker.title}
+          </Text>
         </View>
       </View>
       <View style={[styles.row, styles.review]}>
