@@ -64,8 +64,8 @@ export const initialMarkers = {
       id: 9,
       distance: 0,
       category: "Restaurant",
-      mediaEnum: "Video",
-      media: "https://vod-progressive.akamaized.net/exp=1693234428~acl=%2Fvimeo-prod-skyfire-std-us%2F01%2F190%2F16%2F400954475%2F1711826927.mp4~hmac=0a75e38b9245d1177476f1d8afd6d421a99c10cde3c0966e2ed6f8a2ae290642/vimeo-prod-skyfire-std-us/01/190/16/400954475/1711826927.mp4?filename=file.mp4"
+      mediaEnum: "Image",
+      media: "https://t3.ftcdn.net/jpg/03/24/73/92/360_F_324739203_keeq8udvv0P2h1MLYJ0GLSlTBagoXS48.jpg"
     },
     {
       coords: { latitude: 55.827564, longitude: 12.252668 },
