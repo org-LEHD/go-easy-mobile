@@ -31,8 +31,8 @@ export const initialMarkers = {
       image: Images[0],
       id: 3,
       category: "Restaurant",
-      mediaEnum: "Video",
-      media: "https://vod-progressive.akamaized.net/exp=1693234428~acl=%2Fvimeo-prod-skyfire-std-us%2F01%2F190%2F16%2F400954475%2F1711826927.mp4~hmac=0a75e38b9245d1177476f1d8afd6d421a99c10cde3c0966e2ed6f8a2ae290642/vimeo-prod-skyfire-std-us/01/190/16/400954475/1711826927.mp4?filename=file.mp4"
+      mediaEnum: "Gif",
+      media: "https://media.tenor.com/QlNb5r1f0YUAAAAM/excellent-lecker.gif"
     },
     {
       coords: { latitude: 55.69225938580311, longitude: 12.495259665695695 },

@@ -24,7 +24,6 @@ const home = () => {
             resizeMode="contain"
           />
         )}
-
         {selectedMarker?.mediaEnum === "Video" && (
           <Video
             ref={video}
@@ -34,6 +33,13 @@ const home = () => {
             isLooping
             onPlaybackStatusUpdate={setStatus}
             shouldPlay
+          />
+        )}
+        {selectedMarker?.mediaEnum === "Gif" && (
+          <Image
+            style={styles.video}
+            source={{ uri: selectedMarker.media }}
+            resizeMode="contain"
           />
         )}
       </View>
