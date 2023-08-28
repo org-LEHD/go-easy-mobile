@@ -156,14 +156,6 @@ export const Map = () => {
         >
           <SVGIcons.Center />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.toolbarIcon]}
-          onPress={() => {
-            router.push(`../../home/${1}`);
-          }}
-        >
-          <SVGIcons.Home />
-        </TouchableOpacity>
       </View>
       <MapView
         ref={_mapRef}

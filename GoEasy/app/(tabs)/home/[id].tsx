@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, StyleSheet } from "react-native";
+import { ScrollView, View, Text, StyleSheet, Image } from "react-native";
 import { Video } from "expo-av";
 import React, { useContext, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "expo-router";
@@ -17,15 +17,25 @@ const home = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.row}>
-        <Video
-          ref={video}
-          style={styles.video}
-          source={require("../../../assets/pizza.mp4")}
-          resizeMode="contain"
-          isLooping
-          onPlaybackStatusUpdate={setStatus}
-          shouldPlay
-        />
+      {selectedMarker?.mediaEnum === "Image" && (
+          <Image
+            style={styles.video}
+            source={{ uri: selectedMarker.media }}
+            resizeMode="contain"
+          />
+        )}
+
+        {selectedMarker?.mediaEnum === "Video" && (
+          <Video
+            ref={video}
+            style={styles.video}
+            source={{ uri: selectedMarker.media }}
+            resizeMode="contain"
+            isLooping
+            onPlaybackStatusUpdate={setStatus}
+            shouldPlay
+          />
+        )}
       </View>
       <View style={styles.row}>
         <View style={styles.headerBox}>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
 import { Review } from "../../components/Review";
 import { TrackRoute } from "../TrackRoute";
 import { SVGIcons } from "../SVG-Icons/Svg";
@@ -10,6 +11,7 @@ import {
 } from "../../constants/constants";
 
 export const BottomSheetMarkerMeta = ({ marker }: any) => {
+  const router = useRouter();
   return (
     <>
       <View style={styles.row}>
@@ -22,7 +24,7 @@ export const BottomSheetMarkerMeta = ({ marker }: any) => {
           <TouchableOpacity
             style={styles.link}
             onPress={() => {
-              console.log("pressed");
+              router.push(`../../home/${marker?.id}`);
             }}
           >
             <SVGIcons.Arrow left={true} scale={FLEX_HEIGHT ? 1.7 : 1.2} />
