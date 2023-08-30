@@ -8,7 +8,14 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState, useContext, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+  useMemo,
+  useCallback,
+} from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
