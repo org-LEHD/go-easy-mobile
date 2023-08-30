@@ -5,7 +5,7 @@ export interface Coords {
   longitudeDelta?: number | null;
 }
 
-export interface AlertDialogProps {
+export interface AlertDialog {
   title: string;
   message: string;
   buttonText: string;
