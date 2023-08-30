@@ -129,12 +129,20 @@ export const Map = () => {
   }, []);
 
   useEffect(() => {
+    //cancelAnimationFrame is a function provided by the browser's JavaScript environment,
+    //and it's used to cancel a scheduled animation frame request that was previously initiated
+    //using the requestAnimationFrame function.
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
     if (followUser === false) return;
     const { latitude, longitude } = userLocation;
     if (latitude && longitude) {
-      InteractionManager.runAfterInteractions(() =>
-        animateToRegion(userLocation, 350, _mapRef)
-      );
+      animationRef.current = requestAnimationFrame(() => {
+        InteractionManager.runAfterInteractions(() =>
+          animateToRegion(userLocation, 350, _mapRef)
+        );
+      });
     }
   }, [userLocation, followUser]);
 
@@ -151,7 +159,7 @@ export const Map = () => {
     setFollowUser(false);
   };
 
-  const handleFollowUser = (state: any) => {
+  const handleFollowUser = (state: boolean) => {
     console.log("state", state);
     setFollowUser(state);
   };
@@ -171,7 +179,7 @@ export const Map = () => {
       <View style={styles.toolbar}>
         <TouchableOpacity
           style={[styles.toolbarIcon]}
-          onPress={handleFollowUser}
+          onPress={() => handleFollowUser}
         >
           <SVGIcons.Center color={!followUser ? "#666" : null} />
         </TouchableOpacity>
