@@ -4,3 +4,10 @@ export interface Coords {
   latitudeDelta?: number | null;
   longitudeDelta?: number | null;
 }
+
+export interface AlertDialog {
+  title: string;
+  message: string;
+  buttonText: string;
+  onButtonPress?: () => void;
+}

@@ -7,14 +7,8 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import React, {
-  MutableRefObject,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useRouter } from "expo-router";
+import React, { useEffect, useRef, useState, useContext, useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
@@ -28,7 +22,10 @@ import { animateToRegion } from "../Utils/utils";
 export const Map = () => {
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
-  const { markersContext } = useContext(MapContext);
+  const router = useRouter();
+  const {
+    markersContext
+  } = useContext(MapContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
@@ -108,7 +105,7 @@ export const Map = () => {
         clearTimeout(_debounceRef.current);
       }
       _debounceRef.current = setTimeout(() => {
-        console.log("update");
+        // console.log("update");
         setUserLocation({
           ...userLocation,
           latitude: latitude,
