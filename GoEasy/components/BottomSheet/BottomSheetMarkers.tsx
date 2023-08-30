@@ -40,6 +40,12 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
     setSnapIndex(0);
   }, [markersContext]);
 
+  useEffect(() => {
+    if (_scrollViewRef.current && markersContext.length === 1) {
+      _scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: false }); // Reset scroll position
+    }
+  }, [markersContext]);
+
   // callbacks
   const handleSheetChange = useCallback(() => {
     setScrollEnabled((prev) => !prev);

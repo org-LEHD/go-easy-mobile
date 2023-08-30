@@ -160,8 +160,7 @@ export const Map = () => {
     setFollowUser(false);
   };
 
-  const handleFollowUser = (state: boolean) => {
-    console.log("state", state);
+  const handleFollowUser = (state: any) => {
     setFollowUser(state);
   };
 
@@ -180,7 +179,7 @@ export const Map = () => {
       <View style={styles.toolbar}>
         <TouchableOpacity
           style={[styles.toolbarIcon]}
-          onPress={() => handleFollowUser}
+          onPress={handleFollowUser}
         >
           <SVGIcons.Center color={!followUser ? "#666" : null} />
         </TouchableOpacity>

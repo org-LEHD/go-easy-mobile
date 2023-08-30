@@ -67,8 +67,7 @@ export const Markers: FC<MarkersProps> = ({
       let index = Math.floor(value / CARD_WIDTH + 0.3);
       //Exclude numbers below 0 and the total size of the array
       index = Math.min(Math.max(index, 0), markersContext.length - 1);
-      if (index < 0) return;
-
+      if (index < 0) index = 0;
       if (_mapIndex.current !== index) {
         _mapIndex.current = index;
         //Get the coords from array
@@ -81,7 +80,7 @@ export const Markers: FC<MarkersProps> = ({
         InteractionManager.runAfterInteractions(() =>
           animateToRegion(newCoords, 350, _mapRef)
         );
-        console.log("map");
+
         handleFollowUser(false);
       }
     });
@@ -107,12 +106,16 @@ export const Markers: FC<MarkersProps> = ({
 
   const handleOnMarkerPress = (index: number) => {
     let x = index * CARD_WIDTH + index * 20;
+    console.log("markers", x);
+
     _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
+    handleFollowUser(false);
   };
 
   return (
     <>
       {filteredMarkers?.map((marker: any, index: number) => {
+        // console.log(index);
         const scaleStyle: any = {
           transform: [{ scale: interpolations[index].scale }],
         };
