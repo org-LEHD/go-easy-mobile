@@ -1,8 +1,8 @@
 import { ScrollView, View, Text, StyleSheet, Image } from "react-native";
-import { Video } from "expo-av";
+import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
 import React, { useContext, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "expo-router";
-import { MapContext } from "../../../context/mapContextProvider"
+import { MapContext } from "../../../context/mapContextProvider";
 import { Review } from "../../../components/Review";
 import { Card } from "../../../components/Card";
 
@@ -13,7 +13,7 @@ const home = () => {
   const [status, setStatus] = useState();
 
   const selectedMarker = markersContext?.find((marker: { id: number }) => marker.id === parseInt(id as string, 10));
-
+ 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.row}>
@@ -29,7 +29,7 @@ const home = () => {
             ref={video}
             style={styles.video}
             source={{ uri: selectedMarker.media }}
-            resizeMode="contain"
+            resizeMode={"contain" as ResizeMode | undefined}
             isLooping
             onPlaybackStatusUpdate={setStatus}
             shouldPlay

@@ -14,7 +14,7 @@ export const initialMarkers = {
       id: 1,
       category: "Museum",
       mediaEnum: "Video",
-      media: "https://vod-progressive.akamaized.net/exp=1693234428~acl=%2Fvimeo-prod-skyfire-std-us%2F01%2F190%2F16%2F400954475%2F1711826927.mp4~hmac=0a75e38b9245d1177476f1d8afd6d421a99c10cde3c0966e2ed6f8a2ae290642/vimeo-prod-skyfire-std-us/01/190/16/400954475/1711826927.mp4?filename=file.mp4"
+      media: "https://vod-progressive.akamaized.net/exp=1693320438~acl=%2Fvimeo-prod-skyfire-std-us%2F01%2F3820%2F7%2F194101443%2F649016821.mp4~hmac=7ae74ccbf83438f8b0b0924eeb77a7238df283c540f539d41257730e7c4f27ba/vimeo-prod-skyfire-std-us/01/3820/7/194101443/649016821.mp4"
     },
     {
       coords: { latitude: 55.6802824, longitude: 12.5065854 },
