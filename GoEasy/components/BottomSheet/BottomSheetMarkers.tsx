@@ -24,31 +24,31 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
   const { markersContext, setMarkersContext } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
   const [scrollEnabled, setScrollEnabled] = useState(false);
-  const [gestureIndex, setGestureIndex] = useState<number>(0);
+  const [snapIndex, setSnapIndex] = useState<number>(0);
 
   // useRefs
   const _sheetRef = useRef<BottomSheet>(null);
 
   //open or closed state for the bottomsheet
   useEffect(() => {
-    if (markersContext?.length === 0) _sheetRef.current?.close();
+    if (markersContext.length === 0) {
+      setSnapIndex(-1);
+      if (!_sheetRef.current) return;
+      _sheetRef.current.close();
+      return;
+    }
+    setSnapIndex(0);
   }, [markersContext]);
 
   // callbacks
-  const handleSheetChange = useCallback((snap: any) => {
+  const handleSheetChange = useCallback(() => {
     setScrollEnabled((prev) => !prev);
-  }, []);
-  const handleSnapPress = useCallback((index: any) => {
-    _sheetRef.current?.snapToIndex(index);
-  }, []);
-  const handleClosePress = useCallback(() => {
-    _sheetRef.current?.close();
   }, []);
 
   return (
     <BottomSheet
       ref={_sheetRef}
-      index={0}
+      index={snapIndex}
       snapPoints={["12%", "37%"]}
       enablePanDownToClose={false}
       enableContentPanningGesture={true} // Make gesture possible with content
