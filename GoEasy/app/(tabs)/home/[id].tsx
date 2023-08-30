@@ -10,7 +10,7 @@ const home = () => {
   const { id } = useSearchParams();
   const { markersContext } = useContext(MapContext);
   const video = useRef(null);
-  const [status, setStatus] = useState();
+  const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
 
   const selectedMarker = markersContext?.find((marker: { id: number }) => marker.id === parseInt(id as string, 10));
  
@@ -31,7 +31,7 @@ const home = () => {
             source={{ uri: selectedMarker.media }}
             resizeMode={"contain" as ResizeMode | undefined}
             isLooping
-            onPlaybackStatusUpdate={setStatus}
+            onPlaybackStatusUpdate={(newStatus) => setStatus(newStatus)}
             shouldPlay
           />
         )}
