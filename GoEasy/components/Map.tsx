@@ -8,7 +8,14 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState, useContext, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+  useMemo,
+  useCallback,
+} from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
@@ -23,15 +30,14 @@ export const Map = () => {
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const {
-    markersContext
-  } = useContext(MapContext);
+  const { markersContext } = useContext(MapContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
   const _scrollViewRef = useRef<ScrollView | null>(null);
   const _debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  //We use useRef to avoid unnecessary state update
+  const animationRef = useRef<any>(null);
+
   const _previousUserLocation = useRef<Coords>({
     latitude: null,
     longitude: null,
@@ -43,6 +49,8 @@ export const Map = () => {
     latitude: null,
     longitude: null,
   });
+
+  const [sortedMarkers, setSortedMarkers] = useState<any>(markersContext);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -89,7 +97,8 @@ export const Map = () => {
     );
   }, [initialRegion]);
 
-  const onUserLocationChange = (e: any) => {
+  const onUserLocationChange = useCallback((e: any) => {
+    if (!followUser) return;
     const { latitude, longitude } = e.nativeEvent.coordinate;
     // console.log(latitude, _previousUserLocation.current.latitude);
     //The property onUserLocationChange will keep update with coords
@@ -105,7 +114,7 @@ export const Map = () => {
         clearTimeout(_debounceRef.current);
       }
       _debounceRef.current = setTimeout(() => {
-        // console.log("update");
+        console.log("updates location");
         setUserLocation({
           ...userLocation,
           latitude: latitude,
@@ -115,26 +124,45 @@ export const Map = () => {
         });
       }, 800);
     }
+
     //Save the state for later use
     _previousUserLocation.current = { latitude, longitude };
-  };
+  }, []);
 
   useEffect(() => {
+    //cancelAnimationFrame is a function provided by the browser's JavaScript environment,
+    //and it's used to cancel a scheduled animation frame request that was previously initiated
+    //using the requestAnimationFrame function.
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
     if (followUser === false) return;
     const { latitude, longitude } = userLocation;
     if (latitude && longitude) {
-      InteractionManager.runAfterInteractions(() =>
-        animateToRegion(userLocation, 350, _mapRef)
-      );
+      animationRef.current = requestAnimationFrame(() => {
+        InteractionManager.runAfterInteractions(() =>
+          animateToRegion(userLocation, 350, _mapRef)
+        );
+      });
     }
   }, [userLocation, followUser]);
+
+  useEffect(() => {
+    // On the first update (initial render), disregard.
+    // On the second update (sorting and context update), set sorted markers.
+    return () => {
+      // Set sorted markers after the second update.
+      setSortedMarkers(markersContext);
+    };
+  }, [markersContext]);
 
   const onPanDrag = () => {
     setFollowUser(false);
   };
 
-  const handleFollowUser = () => {
-    setFollowUser(true);
+  const handleFollowUser = (state: any) => {
+    console.log(state);
+    setFollowUser(state);
   };
 
   return (
@@ -154,7 +182,7 @@ export const Map = () => {
           style={[styles.toolbarIcon]}
           onPress={handleFollowUser}
         >
-          <SVGIcons.Center />
+          <SVGIcons.Center color={!followUser ? "#666" : null} />
         </TouchableOpacity>
       </View>
       <MapView
@@ -169,17 +197,24 @@ export const Map = () => {
         mapType={"standard"}
       >
         {/* We check if any of the properties values in userLocation is null */}
-        {Object.values(userLocation)?.some((m) => m !== null) &&
-          markersContext && (
-            <Markers
-              userLocation={userLocation}
-              radius={300}
-              _mapRef={_mapRef}
-              _scrollViewRef={_scrollViewRef}
-            />
-          )}
+        {Object.values(userLocation)?.some((m) => m !== null) ? (
+          <Markers
+            userLocation={userLocation}
+            radius={110}
+            _mapRef={_mapRef}
+            _scrollViewRef={_scrollViewRef}
+            handleFollowUser={handleFollowUser}
+          />
+        ) : null}
       </MapView>
-      <BottomSheetMarkers _scrollViewRef={_scrollViewRef} />
+      {Object.values(userLocation)?.some((m) => m !== null) &&
+      sortedMarkers &&
+      markersContext ? (
+        <BottomSheetMarkers
+          _scrollViewRef={_scrollViewRef}
+          handleFollowUser={handleFollowUser}
+        />
+      ) : null}
     </View>
   );
 };
