@@ -18,9 +18,16 @@ export interface MarkerType {
   title: string;
   category: string;
 }
+
+export interface BottomSheetType {
+  markerSnap: boolean;
+  favoriteSnap: boolean;
+}
 export interface AppState {
   markersContext: MarkerType[] | null;
   setMarkersContext: any | null;
+  bottomSheetContext: BottomSheetType;
+  setBottomSheetContext: any | null;
 }
 
 export interface Action {

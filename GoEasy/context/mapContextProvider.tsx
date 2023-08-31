@@ -11,16 +11,21 @@ export const AnimationContext = React.createContext<Animated.Value | null>(
 const initialState: AppState = {
   markersContext: null,
   setMarkersContext: null,
+  bottomSheetContext: { markerSnap: false, favoriteSnap: false },
+  setBottomSheetContext: null,
 };
 
 const actions = {
   SET_MARKERSCONTEXT: "SET_MARKERSCONTEXT",
+  SET_BOTTOMSHEETCONTEXT: "SET_BOTTOMSHEETCONTEXT",
 };
 
 function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case actions.SET_MARKERSCONTEXT:
       return { ...state, markersContext: action.value };
+    case actions.SET_BOTTOMSHEETCONTEXT:
+      return { ...state, bottomSheetContext: action.value };
     default:
       return state;
   }
@@ -39,8 +44,12 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
 
   const value = {
     markersContext: state.markersContext,
+    bottomSheetContext: state.bottomSheetContext,
     setMarkersContext: (value: AppState) => {
       dispatch({ type: actions.SET_MARKERSCONTEXT, value });
+    },
+    setBottomSheetContext: (value: AppState) => {
+      dispatch({ type: actions.SET_BOTTOMSHEETCONTEXT, value });
     },
   };
 

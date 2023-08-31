@@ -23,14 +23,14 @@ import { BottomSheetMarkers } from "./BottomSheet/BottomSheetMarkers";
 import { CARD_WIDTH, HEIGHT } from "../constants/constants";
 import { MapContext, AnimationContext } from "../context/mapContextProvider";
 import { Markers } from "./Markers";
-import { Coords } from "./Types";
+import { Coords, MarkerType } from "./Types";
 import { animateToRegion } from "../Utils/utils";
+import { BottomSheetFavoriteList } from "./BottomSheet/BottomsheetFavoriteList";
 
 export const Map = () => {
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const { markersContext } = useContext(MapContext);
+  const { markersContext, bottomSheetContext } = useContext(MapContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
@@ -49,8 +49,10 @@ export const Map = () => {
     latitude: null,
     longitude: null,
   });
-
   const [sortedMarkers, setSortedMarkers] = useState<any>(markersContext);
+  const [isFavoriteInMarkers, setIsFavoriteInMarkers] = useState(false);
+  const [isFavoriteListSelected, setIsFavoriteListSelected] = useState(false);
+  const [isFavoriteSelected, setIsFavoriteSelected] = useState(false);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -161,9 +163,22 @@ export const Map = () => {
   };
 
   const handleFollowUser = (state: any) => {
-    // console.log(state);
     setFollowUser(state);
   };
+  const handleFavoriteList = () => {
+    !isFavoriteListSelected && setIsFavoriteListSelected(true);
+  };
+
+  const handleOnFavoriteSelect = (item: MarkerType) => {
+    console.log(item);
+  };
+
+  //we listen to dependency and set state accordingly
+  useEffect(() => {
+    !bottomSheetContext.favoriteSnap &&
+      isFavoriteListSelected &&
+      setIsFavoriteListSelected(false);
+  }, [bottomSheetContext]);
 
   return (
     <View
@@ -183,6 +198,12 @@ export const Map = () => {
           onPress={handleFollowUser}
         >
           <SVGIcons.Center color={!followUser ? "#666" : null} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.toolbarIcon]}
+          onPress={handleFavoriteList}
+        >
+          <SVGIcons.Heart />
         </TouchableOpacity>
       </View>
       <MapView
@@ -207,12 +228,17 @@ export const Map = () => {
           />
         ) : null}
       </MapView>
-      {Object.values(userLocation)?.some((m) => m !== null) &&
-      sortedMarkers &&
-      markersContext ? (
+
+      {!isFavoriteListSelected && !isFavoriteSelected && sortedMarkers ? (
         <BottomSheetMarkers
           _scrollViewRef={_scrollViewRef}
           handleFollowUser={handleFollowUser}
+        />
+      ) : null}
+
+      {isFavoriteListSelected && !isFavoriteSelected ? (
+        <BottomSheetFavoriteList
+          handleOnFavoriteSelect={handleOnFavoriteSelect}
         />
       ) : null}
     </View>

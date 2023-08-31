@@ -32,7 +32,7 @@ export const useFavoriteAsyncStorage = () => {
     markersContext: MarkerType[]
   ): Promise<any> => {
     try {
-      const selectedFavorite = await getSelectedFavorite(id, markersContext);
+      const selectedFavorite = getSelectedFavorite(id, markersContext);
       const storedFavorites = await getAllStorageFavorites();
       if (storedFavorites.length) {
         return (
@@ -50,18 +50,19 @@ export const useFavoriteAsyncStorage = () => {
     id: number,
     markersContext: MarkerType[]
   ): Promise<any> => {
-    const selectedFavorite = await getSelectedFavorite(id, markersContext);
+    const selectedFavorite = getSelectedFavorite(id, markersContext);
+    if (!selectedFavorite) return;
     const storedFavorites = await getAllStorageFavorites();
 
     if (!storedFavorites.length) {
-      useAsyncStorageSet(FAVORITES_KEY, [selectedFavorite]);
+      useAsyncStorageSet(FAVORITES_KEY, JSON.stringify([selectedFavorite]));
     } else if (storedFavorites.length) {
       if (!isInArray(storedFavorites, selectedFavorite)) {
         try {
-          await useAsyncStorageSet(FAVORITES_KEY, [
-            ...storedFavorites,
-            selectedFavorite,
-          ]);
+          await useAsyncStorageSet(
+            FAVORITES_KEY,
+            JSON.stringify([...storedFavorites, selectedFavorite])
+          );
           console.log("item stored successfully.");
         } catch (error) {
           console.log("Error storing item:", error);

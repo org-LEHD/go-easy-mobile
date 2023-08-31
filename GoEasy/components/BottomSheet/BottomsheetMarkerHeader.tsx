@@ -9,6 +9,7 @@ import { MarkerType } from "../Types";
 
 interface MarkerProps {
   title: string;
+  height?: number;
 }
 
 export const BottomSheetMarkerHeader = ({ title }: MarkerProps) => {
