@@ -5,8 +5,41 @@ import { useSearchParams } from "expo-router";
 
 import { SVGIcons } from "../../components/SVG-Icons/Svg";
 import { Alert, Linking } from "react-native";
+import { useFavoriteAsyncStorage } from "../../hooks/useFavoriteAsyncStorage";
 
 const TabsLayout = () => {
+  const { markersContext } = useContext(MapContext);
+  const { id } = useSearchParams();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const {
+    getSingleStorageFavorite,
+    setStorageFavorites,
+    removeStorageFavorite,
+  } = useFavoriteAsyncStorage();
+
+  useEffect(() => {
+    const fetchFavorite = async () => {
+      const singleFavorite = await getSingleStorageFavorite(id, markersContext);
+      if (singleFavorite) setIsFavorite(true);
+    };
+    fetchFavorite();
+  }, []);
+
+  const handleFavorites = async () => {
+    try {
+      if (isFavorite && typeof id === "string") {
+        await removeStorageFavorite(parseInt(id));
+        setIsFavorite(false);
+      } else {
+        await setStorageFavorites(id, markersContext);
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.error("Error handling favorites:", error);
+      // Optionally, you can add additional error handling or alert the user.
+    }
+  };
+
   const handleButtonPhone = () => {
     // Call the phone number
     Linking.openURL("tel:23265722");
@@ -42,7 +75,14 @@ const TabsLayout = () => {
           headerShown: false,
           tabBarLabel: "",
           tabBarIcon(props) {
-            return <SVGIcons.HeartOutline />;
+            return isFavorite ? <SVGIcons.Heart /> : <SVGIcons.HeartOutline />;
+          },
+        }}
+        listeners={{
+          tabPress: (e: { preventDefault: () => void }) => {
+            // Prevent default action
+            e.preventDefault();
+            handleFavorites();
           },
         }}
       />
@@ -58,7 +98,7 @@ const TabsLayout = () => {
           },
         }}
         listeners={{
-          tabPress: (e: { preventDefault: () => void; }) => {
+          tabPress: (e: { preventDefault: () => void }) => {
             // Prevent default action
             e.preventDefault();
             handleButtonWeb();
@@ -76,7 +116,7 @@ const TabsLayout = () => {
           },
         }}
         listeners={{
-          tabPress: (e: { preventDefault: () => void; }) => {
+          tabPress: (e: { preventDefault: () => void }) => {
             // Prevent default action
             e.preventDefault();
             Alert.alert("Call:", "23265722", [

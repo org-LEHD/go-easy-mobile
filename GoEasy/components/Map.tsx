@@ -161,7 +161,7 @@ export const Map = () => {
   };
 
   const handleFollowUser = (state: any) => {
-    console.log(state);
+    // console.log(state);
     setFollowUser(state);
   };
 
