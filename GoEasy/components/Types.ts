@@ -11,3 +11,23 @@ export interface AlertDialog {
   buttonText: string;
   onButtonPress?: () => void;
 }
+
+export interface MarkerType {
+  id: number | null;
+  coords: Coords;
+  title: string;
+  category: string;
+}
+export interface AppState {
+  markersContext: MarkerType[] | null;
+  setMarkersContext: any | null;
+}
+
+export interface Action {
+  type: string;
+  value: any;
+}
+
+export interface MapContextProviderProps {
+  children: React.ReactNode;
+}

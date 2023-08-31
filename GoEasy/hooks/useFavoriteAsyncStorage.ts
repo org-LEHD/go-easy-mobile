@@ -3,22 +3,22 @@ import {
   useAsyncStorageGet,
   useAsyncStorageSet,
 } from "../hooks/useAsyncStorage";
+import { MarkerType } from "../components/Types";
 
 export const useFavoriteAsyncStorage = () => {
   const FAVORITES_KEY = "favorites";
-
-  const getSelectedFavorite = (id: any, markersContext: any) => {
+  const getSelectedFavorite = (id: number, markersContext: MarkerType[]) => {
     const selectedFavorite =
       markersContext &&
-      markersContext.find((item: any) => item.id === parseInt(id));
+      markersContext.find((item: MarkerType) => item.id === id);
     return selectedFavorite;
   };
 
-  const isInArray = (array: any, selectedFavorite: any) => {
-    return array?.some((item: any) => item.id === selectedFavorite?.id);
+  const isInArray = (array: MarkerType[], selectedFavorite: any) => {
+    return array?.some((item: MarkerType) => item.id === selectedFavorite?.id);
   };
 
-  const getAllStorageFavorites = async () => {
+  const getAllStorageFavorites = async (): Promise<any> => {
     try {
       const storedFavorites = await useAsyncStorageGet(FAVORITES_KEY);
       return storedFavorites;
@@ -27,14 +27,17 @@ export const useFavoriteAsyncStorage = () => {
     }
   };
 
-  const getSingleStorageFavorite = async (id: any, markersContext: any) => {
+  const getSingleStorageFavorite = async (
+    id: number,
+    markersContext: MarkerType[]
+  ): Promise<any> => {
     try {
       const selectedFavorite = await getSelectedFavorite(id, markersContext);
       const storedFavorites = await getAllStorageFavorites();
       if (storedFavorites.length) {
         return (
           storedFavorites?.find(
-            (item: any) => item.id === selectedFavorite?.id
+            (item: MarkerType) => item.id === selectedFavorite?.id
           ) || null
         );
       }
@@ -43,7 +46,10 @@ export const useFavoriteAsyncStorage = () => {
     }
   };
 
-  const setStorageFavorites = async (id: any, markersContext: any) => {
+  const setStorageFavorites = async (
+    id: number,
+    markersContext: MarkerType[]
+  ): Promise<any> => {
     const selectedFavorite = await getSelectedFavorite(id, markersContext);
     const storedFavorites = await getAllStorageFavorites();
 
@@ -63,10 +69,10 @@ export const useFavoriteAsyncStorage = () => {
       }
     }
   };
-  const removeStorageFavorite = async (id: any) => {
+  const removeStorageFavorite = async (id: number): Promise<any> => {
     const storedFavorites = await getAllStorageFavorites();
     const filteredFavorites = storedFavorites?.filter(
-      (item: any) => item.id !== id
+      (item: MarkerType) => item.id !== id
     );
     try {
       await useAsyncStorageSet(FAVORITES_KEY, filteredFavorites);
@@ -78,7 +84,7 @@ export const useFavoriteAsyncStorage = () => {
     }
   };
 
-  const clearStorageFavorites = async () => {
+  const clearStorageFavorites = async (): Promise<any> => {
     try {
       await AsyncStorage.clear();
       console.log("All items cleared successfully.");

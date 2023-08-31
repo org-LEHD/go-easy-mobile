@@ -6,6 +6,7 @@ import { useSearchParams } from "expo-router";
 import { SVGIcons } from "../../components/SVG-Icons/Svg";
 import { Alert, Linking } from "react-native";
 import { useFavoriteAsyncStorage } from "../../hooks/useFavoriteAsyncStorage";
+import { MarkerType } from "../../components/Types";
 
 const TabsLayout = () => {
   const { markersContext } = useContext(MapContext);
@@ -19,7 +20,10 @@ const TabsLayout = () => {
 
   useEffect(() => {
     const fetchFavorite = async () => {
-      const singleFavorite = await getSingleStorageFavorite(id, markersContext);
+      const singleFavorite = await getSingleStorageFavorite(
+        Number(id),
+        markersContext as MarkerType[]
+      );
       if (singleFavorite) setIsFavorite(true);
     };
     fetchFavorite();
@@ -27,11 +31,11 @@ const TabsLayout = () => {
 
   const handleFavorites = async () => {
     try {
-      if (isFavorite && typeof id === "string") {
-        await removeStorageFavorite(parseInt(id));
+      if (isFavorite) {
+        await removeStorageFavorite(Number(id));
         setIsFavorite(false);
       } else {
-        await setStorageFavorites(id, markersContext);
+        await setStorageFavorites(Number(id), markersContext as MarkerType[]);
         setIsFavorite(true);
       }
     } catch (error) {

@@ -62,6 +62,7 @@ export const Markers: FC<MarkersProps> = ({
   }, [filteredMarkers]);
 
   useEffect(() => {
+    if (!markersContext) return;
     mapAnimation?.addListener(({ value }: any) => {
       //Create index from x coordinate we get from gesture
       let index = Math.floor(value / CARD_WIDTH + 0.3);

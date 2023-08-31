@@ -200,7 +200,7 @@ export const Map = () => {
         {Object.values(userLocation)?.some((m) => m !== null) ? (
           <Markers
             userLocation={userLocation}
-            radius={110}
+            radius={300}
             _mapRef={_mapRef}
             _scrollViewRef={_scrollViewRef}
             handleFollowUser={handleFollowUser}

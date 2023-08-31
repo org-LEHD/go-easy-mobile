@@ -19,6 +19,7 @@ import { MapContext, AnimationContext } from "../../context/mapContextProvider";
 import { BottomSheetMarkerHeader } from "./BottomsheetMarkerHeader";
 import { BottomSheetMarkerMeta } from "./BottomsheetMarkerMeta";
 import { BottomSheetMarkerDesc } from "./BottomsheetMarkerDesc";
+import { MarkerType } from "../Types";
 
 export const BottomSheetMarkers = ({
   _scrollViewRef,
@@ -35,6 +36,7 @@ export const BottomSheetMarkers = ({
 
   //open or closed state for the bottomsheet
   useEffect(() => {
+    if (!markersContext) return;
     if (markersContext.length === 0) {
       setSnapIndex(-1);
       if (!_sheetRef.current) return;
@@ -99,7 +101,7 @@ export const BottomSheetMarkers = ({
         }
         nestedScrollEnabled={true}
       >
-        {markersContext?.map((marker: any, index: number) => (
+        {markersContext?.map((marker: MarkerType, index: number) => (
           <View key={index} style={styles.card}>
             <BottomSheetMarkerHeader title={marker.title} />
             <BottomSheetMarkerMeta marker={marker} />
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    marginHorizontal: WIDTH * 0.01,
+    marginHorizontal: WIDTH * 0.02,
     alignItems: "center",
     height: FLEX_HEIGHT ? CARD_HEIGHT * 0.5 : CARD_HEIGHT * 0.45,
     backgroundColor: "transparent",

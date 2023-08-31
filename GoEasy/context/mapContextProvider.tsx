@@ -2,20 +2,7 @@ import React, { useEffect } from "react";
 // import { initialMarkers } from "../data/api";
 import { initialMarkers } from "../data/apiMarkers";
 import { Animated } from "react-native";
-
-interface AppState {
-  markersContext: any | null;
-  setMarkersContext: any | null;
-}
-
-interface Action {
-  type: string;
-  value: any;
-}
-
-interface MapContextProviderProps {
-  children: React.ReactNode;
-}
+import { Action, AppState, MapContextProviderProps } from "../components/Types";
 
 export const AnimationContext = React.createContext<Animated.Value | null>(
   null
