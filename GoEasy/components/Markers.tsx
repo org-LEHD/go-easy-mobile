@@ -106,8 +106,6 @@ export const Markers: FC<MarkersProps> = ({
 
   const handleOnMarkerPress = (index: number) => {
     let x = index * CARD_WIDTH + index * 20;
-    console.log("markers", x);
-
     _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
     handleFollowUser(false);
   };

@@ -161,6 +161,7 @@ export const Map = () => {
   };
 
   const handleFollowUser = (state: any) => {
+    console.log(state);
     setFollowUser(state);
   };
 
@@ -196,7 +197,6 @@ export const Map = () => {
         mapType={"standard"}
       >
         {/* We check if any of the properties values in userLocation is null */}
-        {/* We check if any of the properties values in userLocation is null */}
         {Object.values(userLocation)?.some((m) => m !== null) ? (
           <Markers
             userLocation={userLocation}
@@ -210,7 +210,10 @@ export const Map = () => {
       {Object.values(userLocation)?.some((m) => m !== null) &&
       sortedMarkers &&
       markersContext ? (
-        <BottomSheetMarkers _scrollViewRef={_scrollViewRef} />
+        <BottomSheetMarkers
+          _scrollViewRef={_scrollViewRef}
+          handleFollowUser={handleFollowUser}
+        />
       ) : null}
     </View>
   );

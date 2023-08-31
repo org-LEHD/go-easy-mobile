@@ -20,7 +20,11 @@ import { BottomSheetMarkerHeader } from "./BottomsheetMarkerHeader";
 import { BottomSheetMarkerMeta } from "./BottomsheetMarkerMeta";
 import { BottomSheetMarkerDesc } from "./BottomsheetMarkerDesc";
 
-export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
+export const BottomSheetMarkers = ({
+  _scrollViewRef,
+  handleFollowUser,
+}: any) => {
+  //todo types
   const { markersContext, setMarkersContext } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
   const [scrollEnabled, setScrollEnabled] = useState(false);
@@ -38,12 +42,12 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
       return;
     }
     setSnapIndex(0);
-  }, [markersContext]);
 
-  useEffect(() => {
-    if (_scrollViewRef.current && markersContext.length === 1) {
-      _scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: false }); // Reset scroll position
-    }
+    return () => {
+      if (_scrollViewRef.current && markersContext.length === 1) {
+        _scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: false }); // Reset scroll position
+      }
+    };
   }, [markersContext]);
 
   // callbacks
@@ -78,18 +82,21 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
           bottom: 0,
           right: CARD_WIDTH * 0.0085,
         }}
-        onScroll={Animated.event(
-          [
-            {
-              nativeEvent: {
-                contentOffset: {
-                  x: mapAnimation!, // The ! symbol indicates to TypeScript that we are sure mapAnimation won't be null at this point
+        onScroll={
+          _scrollViewRef.current && // On mount onScroll triggers unnessary animation event
+          Animated.event(
+            [
+              {
+                nativeEvent: {
+                  contentOffset: {
+                    x: mapAnimation!, // The ! symbol indicates to TypeScript that we are sure mapAnimation won't be null at this point
+                  },
                 },
               },
-            },
-          ],
-          { useNativeDriver: false }
-        )}
+            ],
+            { useNativeDriver: false }
+          )
+        }
         nestedScrollEnabled={true}
       >
         {markersContext?.map((marker: any, index: number) => (

@@ -17,7 +17,7 @@ const Root = gestureHandlerRootHOC(() => {
    * onUserLocationChange will cause a state change every time location change
    * we don't want to reset the animation when onUserLocationChange state changes, only when animation is invoked.
    */
-  let mapAnimation = useMemo(() => {
+  const mapAnimation = useMemo(() => {
     return new Animated.Value(0);
   }, []);
 
