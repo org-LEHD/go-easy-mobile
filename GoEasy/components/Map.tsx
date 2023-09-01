@@ -26,11 +26,18 @@ import { Markers } from "./Markers";
 import { Coords, MarkerType } from "./Types";
 import { animateToRegion } from "../Utils/utils";
 import { BottomSheetFavoriteList } from "./BottomSheet/BottomsheetFavoriteList";
+import { Favorites } from "./Favorites";
+import { BottomSheetFavorite } from "./BottomSheet/BottomsheetFavorite";
 
 export const Map = () => {
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
-  const { markersContext, bottomSheetContext } = useContext(MapContext);
+  const {
+    markersContext,
+    bottomSheetContext,
+    favoriteContext,
+    setFavoriteContext,
+  } = useContext(MapContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
@@ -165,20 +172,52 @@ export const Map = () => {
   const handleFollowUser = (state: any) => {
     setFollowUser(state);
   };
+
+  //The favorite list is open
   const handleFavoriteList = () => {
     !isFavoriteListSelected && setIsFavoriteListSelected(true);
+    followUser && setFollowUser(false);
   };
 
   const handleOnFavoriteSelect = (item: MarkerType) => {
-    console.log(item);
+    setFavoriteContext({ ...favoriteContext, ...item });
+    setIsFavoriteSelected(true);
+    setIsFavoriteInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
   };
 
-  //we listen to dependency and set state accordingly
+  // First useEffect for bottomSheetContext.favoriteListSnap
   useEffect(() => {
-    !bottomSheetContext.favoriteSnap &&
-      isFavoriteListSelected &&
-      setIsFavoriteListSelected(false);
-  }, [bottomSheetContext]);
+    if (bottomSheetContext.favoriteListSnap === false) {
+      isFavoriteListSelected && setIsFavoriteListSelected(false);
+      console.log(bottomSheetContext);
+    }
+  }, [bottomSheetContext.favoriteListSnap]);
+
+  // Second useEffect for bottomSheetContext.favoriteSnap
+  useEffect(() => {
+    if (bottomSheetContext.favoriteSnap === false) {
+      isFavoriteSelected && setIsFavoriteSelected(false);
+      favoriteContext && setFavoriteContext(null);
+      !followUser && setFollowUser(true);
+      console.log(bottomSheetContext);
+    }
+  }, [bottomSheetContext.favoriteSnap]);
+
+  useEffect(() => {
+    if (favoriteContext) {
+      const { latitude, longitude } = favoriteContext?.coords;
+      const coords = {
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+      InteractionManager.runAfterInteractions(() =>
+        animateToRegion(coords, 350, _mapRef)
+      );
+      return;
+    }
+  }, [favoriteContext]);
 
   return (
     <View
@@ -227,6 +266,9 @@ export const Map = () => {
             handleFollowUser={handleFollowUser}
           />
         ) : null}
+        {!isFavoriteInMarkers && favoriteContext && isFavoriteSelected ? (
+          <Favorites />
+        ) : null}
       </MapView>
 
       {!isFavoriteListSelected && !isFavoriteSelected && sortedMarkers ? (
@@ -236,11 +278,12 @@ export const Map = () => {
         />
       ) : null}
 
-      {isFavoriteListSelected && !isFavoriteSelected ? (
+      {isFavoriteListSelected ? (
         <BottomSheetFavoriteList
           handleOnFavoriteSelect={handleOnFavoriteSelect}
         />
       ) : null}
+      {isFavoriteSelected ? <BottomSheetFavorite /> : null}
     </View>
   );
 };

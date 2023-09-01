@@ -105,7 +105,7 @@ export const BottomSheetMarkers = ({
           <View key={index} style={styles.card}>
             <BottomSheetMarkerHeader title={marker.title} />
             <BottomSheetMarkerMeta marker={marker} />
-            <BottomSheetMarkerDesc />
+            <BottomSheetMarkerDesc marker={marker} />
           </View>
         ))}
       </ScrollView>

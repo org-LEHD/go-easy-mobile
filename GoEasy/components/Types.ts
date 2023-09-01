@@ -1,3 +1,5 @@
+import { LatLng } from "react-native-maps";
+
 export interface Coords {
   latitude: number | null;
   longitude: number | null;
@@ -21,13 +23,16 @@ export interface MarkerType {
 
 export interface BottomSheetType {
   markerSnap: boolean;
+  favoriteListSnap: boolean;
   favoriteSnap: boolean;
 }
 export interface AppState {
   markersContext: MarkerType[] | null;
-  setMarkersContext: any | null;
+  setMarkersContext: any;
   bottomSheetContext: BottomSheetType;
-  setBottomSheetContext: any | null;
+  setBottomSheetContext: any;
+  favoriteContext: MarkerType | null;
+  setFavoriteContext: any;
 }
 
 export interface Action {

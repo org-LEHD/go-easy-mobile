@@ -7,13 +7,14 @@ import { BottomSheetMarkerHeader } from "./BottomsheetMarkerHeader";
 import { useFavoriteAsyncStorage } from "../../hooks/useFavoriteAsyncStorage";
 import { SwipeableItem } from "./../SwipeableItem";
 import { MarkerType } from "../Types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const BottomSheetFavoriteList = ({ handleOnFavoriteSelect }: any) => {
   // context
   const { bottomSheetContext, setBottomSheetContext } = useContext(MapContext);
 
   // useStates
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState<MarkerType[]>([]);
   const [isItemDeleted, setIsItemDeleted] = useState(false);
 
   // useRefs
@@ -46,17 +47,28 @@ export const BottomSheetFavoriteList = ({ handleOnFavoriteSelect }: any) => {
   const onFavoriteSelect = (item: MarkerType) => {
     handleOnFavoriteSelect(item);
     _sheetRef.current?.close();
+    handleBottomSheetonChange(-1);
   };
   const handleBottomSheetonChange = (snap: number) => {
     if (snap !== -1) {
       setBottomSheetContext({
         ...bottomSheetContext,
-        favoriteSnap: true,
+        favoriteListSnap: true,
       });
       return;
     }
-    setBottomSheetContext({ ...bottomSheetContext, favoriteSnap: false });
+    setBottomSheetContext({ ...bottomSheetContext, favoriteListSnap: false });
   };
+
+  //only for testing purpose
+  // const clearStorageMarkers = async () => {
+  //   try {
+  //     await AsyncStorage.clear();
+  //     console.log("All items cleared successfully.");
+  //   } catch (error) {
+  //     console.log("Error clearing items:", error);
+  //   }
+  // };
 
   return (
     <BottomSheet
@@ -66,8 +78,11 @@ export const BottomSheetFavoriteList = ({ handleOnFavoriteSelect }: any) => {
       onChange={handleBottomSheetonChange}
     >
       <View style={{ flex: 1, alignItems: "center" }}>
+        {/* <Button title={"clear"} onPress={clearStorageMarkers}>
+          <Text>Store Async Storage</Text>
+        </Button> */}
         <FlatList
-          data={favorites.reverse()}
+          data={favorites}
           renderItem={({ item }) => {
             return (
               <SwipeableItem

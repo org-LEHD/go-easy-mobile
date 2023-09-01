@@ -10,14 +10,21 @@ export const AnimationContext = React.createContext<Animated.Value | null>(
 
 const initialState: AppState = {
   markersContext: null,
-  setMarkersContext: null,
-  bottomSheetContext: { markerSnap: false, favoriteSnap: false },
-  setBottomSheetContext: null,
+  setMarkersContext: () => null,
+  bottomSheetContext: {
+    markerSnap: false,
+    favoriteListSnap: false,
+    favoriteSnap: false,
+  },
+  setBottomSheetContext: () => null,
+  favoriteContext: null,
+  setFavoriteContext: () => null,
 };
 
 const actions = {
   SET_MARKERSCONTEXT: "SET_MARKERSCONTEXT",
   SET_BOTTOMSHEETCONTEXT: "SET_BOTTOMSHEETCONTEXT",
+  SET_FAVORITECONTEXT: "SET_FAVORITECONTEXT",
 };
 
 function reducer(state: AppState, action: Action): AppState {
@@ -26,6 +33,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, markersContext: action.value };
     case actions.SET_BOTTOMSHEETCONTEXT:
       return { ...state, bottomSheetContext: action.value };
+    case actions.SET_FAVORITECONTEXT:
+      return { ...state, favoriteContext: action.value };
     default:
       return state;
   }
@@ -45,11 +54,15 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
   const value = {
     markersContext: state.markersContext,
     bottomSheetContext: state.bottomSheetContext,
+    favoriteContext: state.favoriteContext,
     setMarkersContext: (value: AppState) => {
       dispatch({ type: actions.SET_MARKERSCONTEXT, value });
     },
     setBottomSheetContext: (value: AppState) => {
       dispatch({ type: actions.SET_BOTTOMSHEETCONTEXT, value });
+    },
+    setFavoriteContext: (value: AppState) => {
+      dispatch({ type: actions.SET_FAVORITECONTEXT, value });
     },
   };
 
