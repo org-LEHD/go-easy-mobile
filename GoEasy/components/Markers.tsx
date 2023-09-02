@@ -83,7 +83,7 @@ export const Markers: FC<MarkersProps> = ({
           animateToRegion(newCoords, 350, _mapRef)
         );
 
-        handleFollowUser(false);
+        //handleFollowUser(false);
       }
     });
     //Cleanup function. This will ensure that markers don't hold a reference to the initial state and uses the updated state.

@@ -21,10 +21,7 @@ import { BottomSheetMarkerMeta } from "./BottomsheetMarkerMeta";
 import { BottomSheetMarkerDesc } from "./BottomsheetMarkerDesc";
 import { MarkerType } from "../Types";
 
-export const BottomSheetMarkers = ({
-  _scrollViewRef,
-  handleFollowUser,
-}: any) => {
+export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
   //todo types
   const { markersContext, setMarkersContext } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
@@ -33,6 +30,14 @@ export const BottomSheetMarkers = ({
 
   // useRefs
   const _sheetRef = useRef<BottomSheet>(null);
+  const _debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (_scrollViewRef.current) {
+      let x = (mapAnimation as any)._value;
+      _scrollViewRef.current.scrollTo({ x: x, y: 0, animated: true });
+    }
+  }, []);
 
   //open or closed state for the bottomsheet
   useEffect(() => {
@@ -85,7 +90,7 @@ export const BottomSheetMarkers = ({
           right: CARD_WIDTH * 0.0085,
         }}
         onScroll={
-          _scrollViewRef.current && // On mount onScroll triggers unnessary animation event
+          // _scrollViewRef.current && // On mount onScroll triggers unnessary animation event
           Animated.event(
             [
               {
