@@ -34,7 +34,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
 
   useEffect(() => {
     if (_scrollViewRef.current) {
-      let x = (mapAnimation as any)._value;
+      let x = Math.floor((mapAnimation as any)._value);
       _scrollViewRef.current.scrollTo({ x: x, y: 0, animated: true });
     }
   }, []);

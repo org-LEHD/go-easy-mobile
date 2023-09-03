@@ -175,31 +175,39 @@ export const Map = () => {
 
   //The favorite list is open
   const handleFavoriteList = () => {
+    //Set a flag that the list is selected
     !isFavoriteListSelected && setIsFavoriteListSelected(true);
+    //Stop panning to users location
     followUser && setFollowUser(false);
   };
 
+  // Select a favorite from the list
   const handleOnFavoriteSelect = (item: MarkerType) => {
+    //set the context
     setFavoriteContext({ ...favoriteContext, ...item });
+    //set a flag that a farvorite is selected
     setIsFavoriteSelected(true);
+    //set a flag if selected favorite is already visible as marker
     setIsFavoriteInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
   };
 
-  // First useEffect for bottomSheetContext.favoriteListSnap
+  // Manually close the favorite list BottomSheet
   useEffect(() => {
-    if (bottomSheetContext.favoriteListSnap === false) {
+    //Set a flag if user choose to close bottomsheet
+    if (!bottomSheetContext.favoriteListSnap) {
       isFavoriteListSelected && setIsFavoriteListSelected(false);
-      console.log(bottomSheetContext);
     }
   }, [bottomSheetContext.favoriteListSnap]);
 
-  // Second useEffect for bottomSheetContext.favoriteSnap
+  // Close the favorite BottomSheet
   useEffect(() => {
-    if (bottomSheetContext.favoriteSnap === false) {
+    if (!bottomSheetContext.favoriteSnap) {
+      //Set a flag when user closes the bottomsheet
       isFavoriteSelected && setIsFavoriteSelected(false);
+      //Clear the favorite context
       favoriteContext && setFavoriteContext(null);
+      //Continue to follow the users location
       !followUser && setFollowUser(true);
-      console.log(bottomSheetContext);
     }
   }, [bottomSheetContext.favoriteSnap]);
 
