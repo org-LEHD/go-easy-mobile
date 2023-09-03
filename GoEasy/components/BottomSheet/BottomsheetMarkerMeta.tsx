@@ -9,8 +9,13 @@ import {
   CARD_WIDTH,
   FLEX_HEIGHT,
 } from "../../constants/constants";
+import { MarkerType } from "../Types";
 
-export const BottomSheetMarkerMeta = ({ marker }: any) => {
+interface MarkerProps {
+  marker: MarkerType;
+}
+
+export const BottomSheetMarkerMeta = ({ marker }: MarkerProps) => {
   const router = useRouter();
   return (
     <>

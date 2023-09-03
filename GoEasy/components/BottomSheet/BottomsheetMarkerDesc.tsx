@@ -5,8 +5,13 @@ import {
   CARD_WIDTH,
   FLEX_HEIGHT,
 } from "../../constants/constants";
+import { MarkerType } from "../Types";
 
-export const BottomSheetMarkerDesc = () => {
+interface MarkerProps {
+  marker: MarkerType;
+}
+
+export const BottomSheetMarkerDesc = ({ marker }: MarkerProps) => {
   return (
     <View style={styles.row}>
       <View style={styles.leftCol}>

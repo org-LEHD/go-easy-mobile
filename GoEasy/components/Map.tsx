@@ -23,14 +23,21 @@ import { BottomSheetMarkers } from "./BottomSheet/BottomSheetMarkers";
 import { CARD_WIDTH, HEIGHT } from "../constants/constants";
 import { MapContext, AnimationContext } from "../context/mapContextProvider";
 import { Markers } from "./Markers";
-import { Coords } from "./Types";
+import { Coords, MarkerType } from "./Types";
 import { animateToRegion } from "../Utils/utils";
+import { BottomSheetFavoriteList } from "./BottomSheet/BottomsheetFavoriteList";
+import { Favorites } from "./Favorites";
+import { BottomSheetFavorite } from "./BottomSheet/BottomsheetFavorite";
 
 export const Map = () => {
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const { markersContext } = useContext(MapContext);
+  const {
+    markersContext,
+    bottomSheetContext,
+    favoriteContext,
+    setFavoriteContext,
+  } = useContext(MapContext);
 
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
@@ -49,8 +56,10 @@ export const Map = () => {
     latitude: null,
     longitude: null,
   });
-
   const [sortedMarkers, setSortedMarkers] = useState<any>(markersContext);
+  const [isFavoriteInMarkers, setIsFavoriteInMarkers] = useState(false);
+  const [isFavoriteListSelected, setIsFavoriteListSelected] = useState(false);
+  const [isFavoriteSelected, setIsFavoriteSelected] = useState(false);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -161,9 +170,62 @@ export const Map = () => {
   };
 
   const handleFollowUser = (state: any) => {
-    console.log(state);
     setFollowUser(state);
   };
+
+  //The favorite list is open
+  const handleFavoriteList = () => {
+    //Set a flag that the list is selected
+    !isFavoriteListSelected && setIsFavoriteListSelected(true);
+    //Stop panning to users location
+    followUser && setFollowUser(false);
+  };
+
+  // Select a favorite from the list
+  const handleOnFavoriteSelect = (item: MarkerType) => {
+    //set the context
+    setFavoriteContext({ ...favoriteContext, ...item });
+    //set a flag that a farvorite is selected
+    setIsFavoriteSelected(true);
+    //set a flag if selected favorite is already visible as marker
+    setIsFavoriteInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
+  };
+
+  // Manually close the favorite list BottomSheet
+  useEffect(() => {
+    //Set a flag if user choose to close bottomsheet
+    if (!bottomSheetContext.favoriteListSnap) {
+      isFavoriteListSelected && setIsFavoriteListSelected(false);
+    }
+  }, [bottomSheetContext.favoriteListSnap]);
+
+  // Close the favorite BottomSheet
+  useEffect(() => {
+    if (!bottomSheetContext.favoriteSnap) {
+      //Set a flag when user closes the bottomsheet
+      isFavoriteSelected && setIsFavoriteSelected(false);
+      //Clear the favorite context
+      favoriteContext && setFavoriteContext(null);
+      //Continue to follow the users location
+      !followUser && setFollowUser(true);
+    }
+  }, [bottomSheetContext.favoriteSnap]);
+
+  useEffect(() => {
+    if (favoriteContext) {
+      const { latitude, longitude } = favoriteContext?.coords;
+      const coords = {
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+      InteractionManager.runAfterInteractions(() =>
+        animateToRegion(coords, 350, _mapRef)
+      );
+      return;
+    }
+  }, [favoriteContext]);
 
   return (
     <View
@@ -184,6 +246,12 @@ export const Map = () => {
         >
           <SVGIcons.Center color={!followUser ? "#666" : null} />
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.toolbarIcon]}
+          onPress={handleFavoriteList}
+        >
+          <SVGIcons.Heart />
+        </TouchableOpacity>
       </View>
       <MapView
         ref={_mapRef}
@@ -200,21 +268,30 @@ export const Map = () => {
         {Object.values(userLocation)?.some((m) => m !== null) ? (
           <Markers
             userLocation={userLocation}
-            radius={110}
+            radius={300}
             _mapRef={_mapRef}
             _scrollViewRef={_scrollViewRef}
             handleFollowUser={handleFollowUser}
           />
         ) : null}
+        {!isFavoriteInMarkers && favoriteContext && isFavoriteSelected ? (
+          <Favorites />
+        ) : null}
       </MapView>
-      {Object.values(userLocation)?.some((m) => m !== null) &&
-      sortedMarkers &&
-      markersContext ? (
+
+      {!isFavoriteListSelected && !isFavoriteSelected && sortedMarkers ? (
         <BottomSheetMarkers
           _scrollViewRef={_scrollViewRef}
           handleFollowUser={handleFollowUser}
         />
       ) : null}
+
+      {isFavoriteListSelected ? (
+        <BottomSheetFavoriteList
+          handleOnFavoriteSelect={handleOnFavoriteSelect}
+        />
+      ) : null}
+      {isFavoriteSelected ? <BottomSheetFavorite /> : null}
     </View>
   );
 };

@@ -15,7 +15,7 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import { MapContext, AnimationContext } from "../context/mapContextProvider";
 import { useDistancePrecise } from "../hooks/useDistance";
-import { Coords } from "./Types";
+import { Coords, MarkerType } from "./Types";
 import { CARD_WIDTH } from "../constants/constants";
 import { animateToRegion } from "../Utils/utils";
 import { initialMarkers } from "./../data/apiMarkers";
@@ -35,7 +35,8 @@ export const Markers: FC<MarkersProps> = ({
   _scrollViewRef,
   handleFollowUser,
 }) => {
-  const { markersContext, setMarkersContext } = useContext(MapContext);
+  const { markersContext, setMarkersContext, favoriteContext } =
+    useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
 
   //useRefs
@@ -62,6 +63,7 @@ export const Markers: FC<MarkersProps> = ({
   }, [filteredMarkers]);
 
   useEffect(() => {
+    if (!markersContext) return;
     mapAnimation?.addListener(({ value }: any) => {
       //Create index from x coordinate we get from gesture
       let index = Math.floor(value / CARD_WIDTH + 0.3);
@@ -81,7 +83,7 @@ export const Markers: FC<MarkersProps> = ({
           animateToRegion(newCoords, 350, _mapRef)
         );
 
-        handleFollowUser(false);
+        //handleFollowUser(false);
       }
     });
     //Cleanup function. This will ensure that markers don't hold a reference to the initial state and uses the updated state.
@@ -113,14 +115,13 @@ export const Markers: FC<MarkersProps> = ({
   return (
     <>
       {filteredMarkers?.map((marker: any, index: number) => {
-        // console.log(index);
         const scaleStyle: any = {
           transform: [{ scale: interpolations[index].scale }],
         };
-        const markerImageSource =
-          marker.id !== null
-            ? require("../assets/map_marker.png")
-            : require("../assets/map_favorite.png");
+        const excludedIds = [favoriteContext?.id];
+        const markerImageSource = excludedIds.includes(marker.id)
+          ? require("../assets/map_favorite.png")
+          : require("../assets/map_marker.png");
 
         return (
           <Marker

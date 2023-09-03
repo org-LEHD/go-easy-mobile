@@ -19,11 +19,9 @@ import { MapContext, AnimationContext } from "../../context/mapContextProvider";
 import { BottomSheetMarkerHeader } from "./BottomsheetMarkerHeader";
 import { BottomSheetMarkerMeta } from "./BottomsheetMarkerMeta";
 import { BottomSheetMarkerDesc } from "./BottomsheetMarkerDesc";
+import { MarkerType } from "../Types";
 
-export const BottomSheetMarkers = ({
-  _scrollViewRef,
-  handleFollowUser,
-}: any) => {
+export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
   //todo types
   const { markersContext, setMarkersContext } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
@@ -32,9 +30,18 @@ export const BottomSheetMarkers = ({
 
   // useRefs
   const _sheetRef = useRef<BottomSheet>(null);
+  const _debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (_scrollViewRef.current) {
+      let x = Math.floor((mapAnimation as any)._value);
+      _scrollViewRef.current.scrollTo({ x: x, y: 0, animated: true });
+    }
+  }, []);
 
   //open or closed state for the bottomsheet
   useEffect(() => {
+    if (!markersContext) return;
     if (markersContext.length === 0) {
       setSnapIndex(-1);
       if (!_sheetRef.current) return;
@@ -83,7 +90,7 @@ export const BottomSheetMarkers = ({
           right: CARD_WIDTH * 0.0085,
         }}
         onScroll={
-          _scrollViewRef.current && // On mount onScroll triggers unnessary animation event
+          // _scrollViewRef.current && // On mount onScroll triggers unnessary animation event
           Animated.event(
             [
               {
@@ -99,11 +106,11 @@ export const BottomSheetMarkers = ({
         }
         nestedScrollEnabled={true}
       >
-        {markersContext?.map((marker: any, index: number) => (
+        {markersContext?.map((marker: MarkerType, index: number) => (
           <View key={index} style={styles.card}>
             <BottomSheetMarkerHeader title={marker.title} />
             <BottomSheetMarkerMeta marker={marker} />
-            <BottomSheetMarkerDesc />
+            <BottomSheetMarkerDesc marker={marker} />
           </View>
         ))}
       </ScrollView>
@@ -121,7 +128,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    marginHorizontal: WIDTH * 0.01,
+    marginHorizontal: WIDTH * 0.02,
     alignItems: "center",
     height: FLEX_HEIGHT ? CARD_HEIGHT * 0.5 : CARD_HEIGHT * 0.45,
     backgroundColor: "transparent",

@@ -5,8 +5,14 @@ import {
   CARD_WIDTH,
   FLEX_HEIGHT,
 } from "../../constants/constants";
+import { MarkerType } from "../Types";
 
-export const BottomSheetMarkerHeader = ({ title }: any) => {
+interface MarkerProps {
+  title: string;
+  height?: number;
+}
+
+export const BottomSheetMarkerHeader = ({ title }: MarkerProps) => {
   return (
     <>
       <View style={[styles.row]}>
