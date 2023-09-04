@@ -12,7 +12,6 @@ interface MarkerProps {
 }
 
 export const BottomSheetMarkerDesc = ({ marker }: MarkerProps) => {
-  console.log(marker);
   return (
     <View style={styles.row}>
       <View style={styles.leftCol}>
