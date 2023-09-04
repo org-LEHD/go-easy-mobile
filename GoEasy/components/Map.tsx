@@ -28,6 +28,7 @@ import { animateToRegion } from "../Utils/utils";
 import { BottomSheetFavoriteList } from "./BottomSheet/BottomsheetFavoriteList";
 import { Favorites } from "./Favorites";
 import { BottomSheetFavorite } from "./BottomSheet/BottomsheetFavorite";
+import { MapViewRoute } from "./MapViewRoute";
 
 export const Map = () => {
   //Safearea for contents on the device
@@ -37,6 +38,8 @@ export const Map = () => {
     bottomSheetContext,
     favoriteContext,
     setFavoriteContext,
+    trackRouteContext,
+    setTrackRouteContext,
   } = useContext(MapContext);
 
   //Define useRefs for later use
@@ -60,6 +63,7 @@ export const Map = () => {
   const [isFavoriteInMarkers, setIsFavoriteInMarkers] = useState(false);
   const [isFavoriteListSelected, setIsFavoriteListSelected] = useState(false);
   const [isFavoriteSelected, setIsFavoriteSelected] = useState(false);
+  const [isTrackRouteSelected, setIsTrackRouteSelected] = useState(false);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -109,7 +113,6 @@ export const Map = () => {
   const onUserLocationChange = useCallback((e: any) => {
     if (!followUser) return;
     const { latitude, longitude } = e.nativeEvent.coordinate;
-    // console.log(latitude, _previousUserLocation.current.latitude);
     //The property onUserLocationChange will keep update with coords
     //even when coords haven't changed. For this not to be to expencive we only need
     //to update users location when moving device.
@@ -165,10 +168,12 @@ export const Map = () => {
     };
   }, [markersContext]);
 
+  //When panning stop following the user
   const onPanDrag = () => {
     setFollowUser(false);
   };
 
+  //Function to handle the followuser state
   const handleFollowUser = (state: any) => {
     setFollowUser(state);
   };
@@ -204,13 +209,14 @@ export const Map = () => {
     if (!bottomSheetContext.favoriteSnap) {
       //Set a flag when user closes the bottomsheet
       isFavoriteSelected && setIsFavoriteSelected(false);
-      //Clear the favorite context
-      favoriteContext && setFavoriteContext(null);
+      //Clear the favorite context if track route is not in use
+      !isTrackRouteSelected && favoriteContext && setFavoriteContext(null);
       //Continue to follow the users location
       !followUser && setFollowUser(true);
     }
   }, [bottomSheetContext.favoriteSnap]);
 
+  //After favoriteContext is being set, we initiate an animation
   useEffect(() => {
     if (favoriteContext) {
       const { latitude, longitude } = favoriteContext?.coords;
@@ -226,6 +232,41 @@ export const Map = () => {
       return;
     }
   }, [favoriteContext]);
+
+  //Listen to trackRouteContext if destination is set.
+  useEffect(() => {
+    const { latitude, longitude } = userLocation;
+    const coords = {
+      latitude: latitude,
+      longitude: longitude,
+    };
+    if (trackRouteContext.destination !== null) {
+      setTrackRouteContext({
+        ...trackRouteContext,
+        origin: coords,
+      });
+      setFollowUser(false);
+      setIsTrackRouteSelected(true);
+    }
+  }, [trackRouteContext.destination]);
+
+  //Reset all flags concearning track route and favorits
+  const handleResetTrackRoute = () => {
+    setTrackRouteContext({
+      ...trackRouteContext,
+      origin: null,
+      destination: null,
+    });
+
+    !followUser && setFollowUser(true);
+    favoriteContext && setFavoriteContext(null);
+    isTrackRouteSelected && setIsTrackRouteSelected(false);
+    isFavoriteSelected && setIsFavoriteSelected(false);
+
+    InteractionManager.runAfterInteractions(() =>
+      animateToRegion(userLocation, 350, _mapRef)
+    );
+  };
 
   return (
     <View
@@ -252,6 +293,14 @@ export const Map = () => {
         >
           <SVGIcons.Heart />
         </TouchableOpacity>
+        {isTrackRouteSelected ? (
+          <TouchableOpacity
+            style={[styles.toolbarIcon, styles.route]}
+            onPress={handleResetTrackRoute}
+          >
+            <SVGIcons.Route />
+          </TouchableOpacity>
+        ) : null}
       </View>
       <MapView
         ref={_mapRef}
@@ -274,23 +323,28 @@ export const Map = () => {
             handleFollowUser={handleFollowUser}
           />
         ) : null}
-        {!isFavoriteInMarkers && favoriteContext && isFavoriteSelected ? (
-          <Favorites />
-        ) : null}
+
+        {/* The Route */}
+        {isTrackRouteSelected && <MapViewRoute _mapRef={_mapRef} />}
+
+        {/* The Favorite */}
+        {!isFavoriteInMarkers && favoriteContext ? <Favorites /> : null}
       </MapView>
 
+      {/* BottomSheet Markers */}
       {!isFavoriteListSelected && !isFavoriteSelected && sortedMarkers ? (
         <BottomSheetMarkers
           _scrollViewRef={_scrollViewRef}
           handleFollowUser={handleFollowUser}
         />
       ) : null}
-
+      {/* BottomSheet Favorite list */}
       {isFavoriteListSelected ? (
         <BottomSheetFavoriteList
           handleOnFavoriteSelect={handleOnFavoriteSelect}
         />
       ) : null}
+      {/* BottomSheet Favorite */}
       {isFavoriteSelected ? <BottomSheetFavorite /> : null}
     </View>
   );
@@ -336,5 +390,8 @@ const styles = StyleSheet.create({
   marker: {
     width: 30,
     height: 30,
+  },
+  route: {
+    backgroundColor: "#0064fe",
   },
 });

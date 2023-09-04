@@ -33,6 +33,8 @@ export interface AppState {
   setBottomSheetContext: any;
   favoriteContext: MarkerType | null;
   setFavoriteContext: any;
+  trackRouteContext: any;
+  setTrackRouteContext: any;
 }
 
 export interface Action {
