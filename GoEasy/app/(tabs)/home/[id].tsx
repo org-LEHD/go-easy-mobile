@@ -1,63 +1,53 @@
 import { ScrollView, View, Text, StyleSheet, Image } from "react-native";
 import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "expo-router";
 import { MapContext } from "../../../context/mapContextProvider";
 import { Review } from "../../../components/Review";
 import { Card } from "../../../components/Card";
+import { useAdsApi } from "../../../data/useAdsApi";
+import { AddType } from "../../../components/Types";
 
 const home = () => {
   const { id } = useSearchParams();
-  const { markersContext } = useContext(MapContext);
-  const video = useRef(null);
-  const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
+  const { fetchInitialAds } = useAdsApi(id);
+  const [adds, setAdds] = useState<AddType[] | null>(null);
 
-  const selectedMarker = markersContext?.find((marker: { id: number }) => marker.id === parseInt(id as string, 10));
- 
+  useEffect(() => {
+    // Define an async function to fetch and log the initial ads
+    const fetchData = async () => {
+      try {
+        const initialAds = await fetchInitialAds();
+        setAdds(initialAds);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    // Call the async function to fetch the data
+    fetchData();
+  }, [fetchInitialAds]);
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.row}>
-      {selectedMarker?.mediaEnum === "Image" && (
+        {adds && (
           <Image
             style={styles.video}
-            source={{ uri: selectedMarker.media }}
-            resizeMode="contain"
-          />
-        )}
-        {selectedMarker?.mediaEnum === "Video" && (
-          <Video
-            ref={video}
-            style={styles.video}
-            source={{ uri: selectedMarker.media }}
-            resizeMode={"contain" as ResizeMode | undefined}
-            isLooping
-            onPlaybackStatusUpdate={(newStatus) => setStatus(newStatus)}
-            shouldPlay
-          />
-        )}
-        {selectedMarker?.mediaEnum === "Gif" && (
-          <Image
-            style={styles.video}
-            source={{ uri: selectedMarker.media }}
-            resizeMode="contain"
+            source={{ uri: adds[0]?.media }}
+            resizeMode="cover"
           />
         )}
       </View>
       <View style={styles.row}>
         <View style={styles.headerBox}>
-          <Text style={styles.header}>
-            {selectedMarker && selectedMarker.title}
-          </Text>
+          <Text style={styles.header}>{adds && adds[0]?.title}</Text>
         </View>
       </View>
       <View style={[styles.row, styles.review]}>
         <Review />
       </View>
       <View style={[styles.row, styles.desc]}>
-        <Text>
-          Vi har stort udsalg på frokostpizza og burgerer. Vores familie menu er
-          et must try. Kom forbi når du har lyst.
-        </Text>
+        <Text>{adds && adds[0]?.description}</Text>
       </View>
       <View style={[styles.row, styles.cards]}>
         <Card />
