@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
-// import { initialMarkers } from "../data/api";
-import { initialMarkers } from "../data/apiMarkers";
+import React, { useEffect, useState } from "react";
 import { Animated } from "react-native";
 import { Action, AppState, MapContextProviderProps } from "../components/Types";
+import { useMarkerApi } from "../data/useMarkerApi";
 
 export const AnimationContext = React.createContext<Animated.Value | null>(
   null
@@ -21,6 +20,8 @@ const initialState: AppState = {
   setFavoriteContext: () => null,
   trackRouteContext: { origin: null, destination: null },
   setTrackRouteContext: () => null,
+  initialMarkersContext: null,
+  setInitialMarkersContext: () => null,
 };
 
 const actions = {
@@ -28,6 +29,7 @@ const actions = {
   SET_BOTTOMSHEETCONTEXT: "SET_BOTTOMSHEETCONTEXT",
   SET_FAVORITECONTEXT: "SET_FAVORITECONTEXT",
   SET_TRACKROUTECONTEXT: "SET_TRACKROUTECONTEXT",
+  SET_INITIALMARKERSCONTEXT: "SET_INITIALMARKERSCONTEXT",
 };
 
 function reducer(state: AppState, action: Action): AppState {
@@ -40,6 +42,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, favoriteContext: action.value };
     case actions.SET_TRACKROUTECONTEXT:
       return { ...state, trackRouteContext: action.value };
+    case actions.SET_INITIALMARKERSCONTEXT:
+      return { ...state, initialMarkersContext: action.value };
     default:
       return state;
   }
@@ -49,11 +53,21 @@ export const MapContext = React.createContext<AppState>(initialState);
 
 export function MapContextProvider({ children }: MapContextProviderProps) {
   const [state, dispatch] = React.useReducer(reducer, initialState);
+  const { fetchInitialMarkers } = useMarkerApi();
+
   useEffect(() => {
-    dispatch({
-      type: actions.SET_MARKERSCONTEXT,
-      value: initialMarkers.markers,
-    });
+    const initialMarkers = async () => {
+      const initialMarkers = await fetchInitialMarkers(); // Await the fetchData function
+      dispatch({
+        type: actions.SET_INITIALMARKERSCONTEXT,
+        value: initialMarkers,
+      });
+      dispatch({
+        type: actions.SET_MARKERSCONTEXT,
+        value: initialMarkers,
+      });
+    };
+    initialMarkers();
   }, []);
 
   const value = {
@@ -61,6 +75,7 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
     bottomSheetContext: state.bottomSheetContext,
     favoriteContext: state.favoriteContext,
     trackRouteContext: state.trackRouteContext,
+    initialMarkersContext: state.initialMarkersContext,
     setMarkersContext: (value: AppState) => {
       dispatch({ type: actions.SET_MARKERSCONTEXT, value });
     },
@@ -72,6 +87,9 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
     },
     setTrackRouteContext: (value: AppState) => {
       dispatch({ type: actions.SET_TRACKROUTECONTEXT, value });
+    },
+    setInitialMarkersContext: (value: AppState) => {
+      dispatch({ type: actions.SET_INITIALMARKERSCONTEXT, value });
     },
   };
 

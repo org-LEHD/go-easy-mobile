@@ -16,17 +16,21 @@ export const BottomSheetMarkerDesc = ({ marker }: MarkerProps) => {
     <View style={styles.row}>
       <View style={styles.leftCol}>
         <Image
-          source={require("../../assets/images/small_image.png")}
+          source={{ uri: marker.thumbnail }}
           style={styles.image}
+          resizeMode="cover"
         />
       </View>
       <View style={styles.rightCol}>
-        <Text style={[styles.header, { flexWrap: "wrap", flexShrink: 0 }]}>
-          Kom ind og prøv vores menu. Det er den bedste nogensinde
+        <Text
+          style={[styles.header, { flexWrap: "wrap", flexShrink: 0 }]}
+          numberOfLines={3}
+          ellipsizeMode="tail"
+        >
+          {marker.summary}
         </Text>
         <Text ellipsizeMode="tail" numberOfLines={3} style={styles.body}>
-          Vi har stort udsalg på frokostpizza og burgerer. Vores familie menu er
-          et must try. Kom forbi når du har lyst.
+          {marker.description}
         </Text>
       </View>
     </View>
@@ -56,8 +60,7 @@ const styles = StyleSheet.create({
     fontSize: FLEX_HEIGHT ? 16 + CARD_HEIGHT * 0.03 : 15,
     fontWeight: "500",
     color: "#666",
-    marginBottom: FLEX_HEIGHT ? 10 : 0,
-    flexBasis: 60,
+    marginBottom: FLEX_HEIGHT ? 10 : 5,
   },
   body: {
     fontSize: FLEX_HEIGHT ? 13 + CARD_HEIGHT * 0.02 : 13,
