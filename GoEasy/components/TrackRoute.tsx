@@ -1,16 +1,26 @@
 import { useContext, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { SVGIcons } from "./SVG-Icons/Svg";
-import { CARD_HEIGHT, FLEX_HEIGHT } from "../constants/constants";
+import { MapContext } from "../context/mapContextProvider";
+import { MarkerType } from "./Types";
 
-export const TrackRoute = () => {
+interface MarkerProps {
+  marker: MarkerType;
+}
+
+export const TrackRoute = ({ marker }: MarkerProps) => {
+  const { trackRouteContext, setTrackRouteContext } = useContext(MapContext);
+
   const handleTrackRoute = () => {
-    console.log("press");
+    setTrackRouteContext({
+      ...trackRouteContext,
+      destination: marker.coords,
+    });
   };
 
   return (
     <TouchableOpacity style={styles.routeOval} onPress={handleTrackRoute}>
-      <SVGIcons.Route scale={FLEX_HEIGHT ? 1.5 : 1} />
+      <SVGIcons.Route />
       <Text style={styles.routeText}>Rute</Text>
     </TouchableOpacity>
   );
@@ -18,17 +28,16 @@ export const TrackRoute = () => {
 
 const styles = StyleSheet.create({
   routeOval: {
-    width: FLEX_HEIGHT ? 100 : 70,
-    height: FLEX_HEIGHT ? 40 : 30,
+    width: 70,
+    height: 30,
     backgroundColor: "blue",
-    borderRadius: 20,
+    borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
   },
   routeText: {
     color: "white",
-    marginLeft: FLEX_HEIGHT ? 8 : 5,
-    fontSize: FLEX_HEIGHT ? 16 + CARD_HEIGHT * 0.01 : 16 + CARD_HEIGHT * 0.001,
+    marginLeft: 5,
   },
 });

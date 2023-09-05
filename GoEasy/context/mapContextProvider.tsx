@@ -18,6 +18,8 @@ const initialState: AppState = {
   setBottomSheetContext: () => null,
   favoriteContext: null,
   setFavoriteContext: () => null,
+  trackRouteContext: { origin: null, destination: null },
+  setTrackRouteContext: () => null,
   initialMarkersContext: null,
   setInitialMarkersContext: () => null,
 };
@@ -26,6 +28,7 @@ const actions = {
   SET_MARKERSCONTEXT: "SET_MARKERSCONTEXT",
   SET_BOTTOMSHEETCONTEXT: "SET_BOTTOMSHEETCONTEXT",
   SET_FAVORITECONTEXT: "SET_FAVORITECONTEXT",
+  SET_TRACKROUTECONTEXT: "SET_TRACKROUTECONTEXT",
   SET_INITIALMARKERSCONTEXT: "SET_INITIALMARKERSCONTEXT",
 };
 
@@ -37,6 +40,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, bottomSheetContext: action.value };
     case actions.SET_FAVORITECONTEXT:
       return { ...state, favoriteContext: action.value };
+    case actions.SET_TRACKROUTECONTEXT:
+      return { ...state, trackRouteContext: action.value };
     case actions.SET_INITIALMARKERSCONTEXT:
       return { ...state, initialMarkersContext: action.value };
     default:
@@ -69,6 +74,7 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
     markersContext: state.markersContext,
     bottomSheetContext: state.bottomSheetContext,
     favoriteContext: state.favoriteContext,
+    trackRouteContext: state.trackRouteContext,
     initialMarkersContext: state.initialMarkersContext,
     setMarkersContext: (value: AppState) => {
       dispatch({ type: actions.SET_MARKERSCONTEXT, value });
@@ -78,6 +84,9 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
     },
     setFavoriteContext: (value: AppState) => {
       dispatch({ type: actions.SET_FAVORITECONTEXT, value });
+    },
+    setTrackRouteContext: (value: AppState) => {
+      dispatch({ type: actions.SET_TRACKROUTECONTEXT, value });
     },
     setInitialMarkersContext: (value: AppState) => {
       dispatch({ type: actions.SET_INITIALMARKERSCONTEXT, value });

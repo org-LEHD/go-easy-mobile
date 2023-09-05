@@ -25,7 +25,7 @@ export const BottomSheetMarkerMeta = ({ marker }: MarkerProps) => {
           <Review />
         </View>
         <View style={styles.rightCol}>
-          <TrackRoute />
+          <TrackRoute marker={marker} />
           <TouchableOpacity
             style={styles.link}
             onPress={() => {
