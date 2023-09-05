@@ -178,45 +178,45 @@ export const Map = () => {
     setFollowUser(state);
   };
 
-  //The favorite list is open
+  // Handle opening the favorite list
   const handleFavoriteList = () => {
-    //Set a flag that the list is selected
     !isFavoriteListSelected && setIsFavoriteListSelected(true);
-    //Stop panning to users location
     followUser && setFollowUser(false);
   };
 
   // Select a favorite from the list
   const handleOnFavoriteSelect = (item: MarkerType) => {
-    //set the context
     setFavoriteContext({ ...favoriteContext, ...item });
-    //set a flag that a farvorite is selected
     setIsFavoriteSelected(true);
-    //set a flag if selected favorite is already visible as marker
     setIsFavoriteInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
   };
 
-  // Manually close the favorite list BottomSheet
+  // Handle manual actions on bottom sheet for markers
   useEffect(() => {
-    //Set a flag if user choose to close bottomsheet
+    if (!bottomSheetContext.markerSnap) {
+      !followUser && setFollowUser(true);
+    }
+    if (bottomSheetContext.markerSnap) {
+      followUser && setFollowUser(false);
+    }
+  }, [bottomSheetContext.markerSnap]);
+
+  // Handle manual actions on bottom sheet for favorites
+  useEffect(() => {
     if (!bottomSheetContext.favoriteListSnap) {
       isFavoriteListSelected && setIsFavoriteListSelected(false);
     }
   }, [bottomSheetContext.favoriteListSnap]);
 
-  // Close the favorite BottomSheet
   useEffect(() => {
     if (!bottomSheetContext.favoriteSnap) {
-      //Set a flag when user closes the bottomsheet
       isFavoriteSelected && setIsFavoriteSelected(false);
-      //Clear the favorite context if track route is not in use
       !isTrackRouteSelected && favoriteContext && setFavoriteContext(null);
-      //Continue to follow the users location
       !followUser && setFollowUser(true);
     }
   }, [bottomSheetContext.favoriteSnap]);
 
-  //After favoriteContext is being set, we initiate an animation
+  // Handle favoriteContext actions
   useEffect(() => {
     if (favoriteContext) {
       const { latitude, longitude } = favoriteContext?.coords;
@@ -233,7 +233,7 @@ export const Map = () => {
     }
   }, [favoriteContext]);
 
-  //Listen to trackRouteContext if destination is set.
+  // Handle trackRouteContext actions if destination is set.
   useEffect(() => {
     const { latitude, longitude } = userLocation;
     const coords = {
@@ -250,19 +250,17 @@ export const Map = () => {
     }
   }, [trackRouteContext.destination]);
 
-  //Reset all flags concearning track route and favorits
+  //Reset all
   const handleResetTrackRoute = () => {
     setTrackRouteContext({
       ...trackRouteContext,
       origin: null,
       destination: null,
     });
-
     !followUser && setFollowUser(true);
     favoriteContext && setFavoriteContext(null);
     isTrackRouteSelected && setIsTrackRouteSelected(false);
     isFavoriteSelected && setIsFavoriteSelected(false);
-
     InteractionManager.runAfterInteractions(() =>
       animateToRegion(userLocation, 350, _mapRef)
     );

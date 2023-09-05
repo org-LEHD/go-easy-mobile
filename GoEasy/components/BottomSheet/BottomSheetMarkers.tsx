@@ -23,7 +23,8 @@ import { MarkerType } from "../Types";
 
 export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
   //todo types
-  const { markersContext, setMarkersContext } = useContext(MapContext);
+  const { markersContext, bottomSheetContext, setBottomSheetContext } =
+    useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
   const [scrollEnabled, setScrollEnabled] = useState(false);
   const [snapIndex, setSnapIndex] = useState<number>(0);
@@ -48,7 +49,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
       _sheetRef.current.close();
       return;
     }
-    setSnapIndex(0);
+    //setSnapIndex(0);
 
     return () => {
       if (_scrollViewRef.current && markersContext.length === 1) {
@@ -58,9 +59,22 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
   }, [markersContext]);
 
   // callbacks
-  const handleSheetChange = useCallback(() => {
-    setScrollEnabled((prev) => !prev);
-  }, []);
+  const handleSheetChange = useCallback(
+    (snap: any) => {
+      setScrollEnabled((prev) => !prev);
+
+      if (snap === 1) {
+        setBottomSheetContext({
+          ...bottomSheetContext,
+          markerSnap: true,
+        });
+        return;
+      }
+      setBottomSheetContext({ ...bottomSheetContext, markerSnap: false });
+      console.log(snap);
+    },
+    [snapIndex]
+  );
 
   return (
     <BottomSheet

@@ -10,7 +10,7 @@ export const SwipeableItem = ({
   handleSelectedItem,
   handleDeleteItem,
 }: any) => {
-  const [number, name, area, city] = data.address.split(",");
+  const [number, name, area, city] = data.address?.split(",") || [];
   const leftSwipe = () => {
     return (
       <TouchableOpacity onPress={() => handleDeleteItem(data.id)}>
@@ -33,7 +33,9 @@ export const SwipeableItem = ({
           </View>
           <View style={styles.textContent}>
             <Text style={styles.title}>{data?.title}</Text>
-            <Text style={styles.address}>{`${name} ${number}, ${city}`}</Text>
+            <Text style={styles.address}>{`${name ?? ""} ${number ?? ""}${
+              city ? ", " + city : ""
+            }`}</Text>
           </View>
         </TouchableOpacity>
       </View>
