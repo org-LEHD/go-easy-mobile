@@ -5,13 +5,12 @@ import { SVGIcons } from "../components/SVG-Icons/Svg";
 import { CARD_WIDTH, SPACING, WIDTH } from "../constants/constants";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-import { MapContext } from "../context/mapContextProvider";
-
 export const SwipeableItem = ({
   data,
   handleSelectedItem,
   handleDeleteItem,
 }: any) => {
+  const [number, name, area, city] = data.address.split(",");
   const leftSwipe = () => {
     return (
       <TouchableOpacity onPress={() => handleDeleteItem(data.id)}>
@@ -21,6 +20,7 @@ export const SwipeableItem = ({
       </TouchableOpacity>
     );
   };
+
   return (
     <Swipeable renderLeftActions={leftSwipe}>
       <View style={styles.container}>
@@ -33,7 +33,7 @@ export const SwipeableItem = ({
           </View>
           <View style={styles.textContent}>
             <Text style={styles.title}>{data?.title}</Text>
-            <Text style={styles.address}>{data?.address}</Text>
+            <Text style={styles.address}>{`${name} ${number}, ${city}`}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -85,5 +85,6 @@ const styles = StyleSheet.create({
   address: {
     fontSize: 10,
     marginBottom: 3,
+    marginStart: -2,
   },
 });

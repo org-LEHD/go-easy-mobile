@@ -18,7 +18,6 @@ import { useDistancePrecise } from "../hooks/useDistance";
 import { Coords, MarkerType } from "./Types";
 import { CARD_WIDTH } from "../constants/constants";
 import { animateToRegion } from "../Utils/utils";
-import { initialMarkers } from "./../data/apiMarkers";
 
 interface MarkersProps {
   radius: number;
@@ -35,15 +34,19 @@ export const Markers: FC<MarkersProps> = ({
   _scrollViewRef,
   handleFollowUser,
 }) => {
-  const { markersContext, setMarkersContext, favoriteContext } =
-    useContext(MapContext);
+  const {
+    initialMarkersContext,
+    markersContext,
+    setMarkersContext,
+    favoriteContext,
+  } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
 
   //useRefs
   let _mapIndex = useRef<any>(null);
 
   const filteredMarkers = useMemo(() => {
-    const addDistanceToMarkers = initialMarkers.markers?.map((marker: any) => {
+    const addDistanceToMarkers = initialMarkersContext?.map((marker: any) => {
       const { latitude, longitude } = userLocation;
       const coords = {
         location: { latitude, longitude },
@@ -115,9 +118,12 @@ export const Markers: FC<MarkersProps> = ({
   return (
     <>
       {filteredMarkers?.map((marker: any, index: number) => {
-        const scaleStyle: any = {
-          transform: [{ scale: interpolations[index].scale }],
-        };
+        const scaleStyle: any =
+          interpolations && interpolations[index]
+            ? {
+                transform: [{ scale: interpolations[index].scale }],
+              }
+            : {}; // Provide a default empty object if it's undefined
         const excludedIds = [favoriteContext?.id];
         const markerImageSource = excludedIds.includes(marker.id)
           ? require("../assets/map_favorite.png")

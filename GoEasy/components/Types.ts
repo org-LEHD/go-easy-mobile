@@ -1,4 +1,5 @@
 import { LatLng } from "react-native-maps";
+import { initialMarkers } from "./../data/apiMarkersMock";
 
 export interface Coords {
   latitude: number | null;
@@ -19,6 +20,21 @@ export interface MarkerType {
   coords: Coords;
   title: string;
   category: string;
+  thumbnail: string;
+  address: string;
+  phone: string;
+  description: string;
+  summary: string;
+  website: string;
+  distance: number;
+}
+
+export interface AddType {
+  description: string;
+  id: number;
+  locationId: number;
+  media: string;
+  title: string;
 }
 
 export interface BottomSheetType {
@@ -33,6 +49,8 @@ export interface AppState {
   setBottomSheetContext: any;
   favoriteContext: MarkerType | null;
   setFavoriteContext: any;
+  initialMarkersContext: MarkerType[] | null;
+  setInitialMarkersContext: any;
 }
 
 export interface Action {
