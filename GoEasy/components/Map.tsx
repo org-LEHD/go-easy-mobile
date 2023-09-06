@@ -205,7 +205,8 @@ export const Map = () => {
   const handleOnSearchSelect = useCallback((item: MarkerType) => {
     setSearchContext({ ...searchContext, ...item });
     setIsSearchChoosen(true);
-    setIsSearchInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
+    setIsSearchInMarkers(!!markersContext?.some((m) => m.id === item.id));
+    followUser && setFollowUser(false);
   }, [searchContext, markersContext])
 
   // Handle manual actions on bottom sheet for markers

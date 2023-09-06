@@ -30,7 +30,7 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
     {
       setSearchFieldSelected(false)
     }
-  }, []);
+  }, [searchQuery]);
 
   const filteredSearch = initialMarkersContext?.filter((marker: MarkerType) => {
     return (
@@ -67,7 +67,7 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
       />
       {searchFieldSelected && (
         <View style={styles.filteredSearchContainer}>
-          {filteredSearch.map((marker: any) => (
+          {filteredSearch?.map((marker: any) => (
             <View key={marker.id} style={styles.FilteredItemsStart}>
             <Pressable
               key={marker.id}
