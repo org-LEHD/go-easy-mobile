@@ -39,6 +39,7 @@ export const Markers: FC<MarkersProps> = ({
     markersContext,
     setMarkersContext,
     favoriteContext,
+    searchContext
   } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
 
@@ -123,11 +124,34 @@ export const Markers: FC<MarkersProps> = ({
                 transform: [{ scale: interpolations[index].scale }],
               }
             : {}; // Provide a default empty object if it's undefined
-        const excludedIds = [favoriteContext?.id];
-        const markerImageSource = excludedIds.includes(marker.id)
-          ? require("../assets/map_favorite.png")
-          : require("../assets/map_marker.png");
+        // const excludedFavoriteIds = [favoriteContext?.id];
+        // const markerImageSourceFavorite = excludedFavoriteIds.includes(marker.id)
+        //   ? require("../assets/map_favorite.png")
+        //   : require("../assets/map_marker.png");
+        // const excludedSearchIds = [searchContext?.id];
+        // const markerImageSourceSearch = excludedSearchIds.includes(marker.id)
+        //     ? require("../assets/map_search.png")
+        //     : require("../assets/map_marker.png");
 
+              // Check for favorite and search markers
+      const isFavorite = favoriteContext?.id === marker.id;
+      const isSearch = searchContext?.id === marker.id;
+
+      // Determine the marker image source based on conditions
+      let markerImageSource = require("../assets/map_marker.png");
+
+      // Use a switch statement to determine the marker image source
+      switch (true) {
+        case isFavorite:
+          markerImageSource = require("../assets/map_favorite.png");
+          break;
+        case isSearch:
+          markerImageSource = require("../assets/map_search.png");
+          break;
+        default:
+          // Use the default marker image
+          break;
+      }
         return (
           <Marker
             coordinate={marker.coords}

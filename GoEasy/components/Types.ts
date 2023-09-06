@@ -41,6 +41,7 @@ export interface BottomSheetType {
   markerSnap: boolean;
   favoriteListSnap: boolean;
   favoriteSnap: boolean;
+  searchSnap: boolean;
 }
 export interface AppState {
   markersContext: MarkerType[] | null;
@@ -49,6 +50,8 @@ export interface AppState {
   setBottomSheetContext: any;
   favoriteContext: MarkerType | null;
   setFavoriteContext: any;
+  searchContext: MarkerType | null;
+  setSearchContext: any;
   trackRouteContext: any;
   setTrackRouteContext: any;
   initialMarkersContext: MarkerType[] | null;
