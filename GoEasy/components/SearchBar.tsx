@@ -1,16 +1,22 @@
-import React, { useState, useContext, useRef, useEffect } from 'react';
-import { IconProps, SearchBar } from 'react-native-elements';
-import { StyleSheet, Text, Animated, View, Pressable, Keyboard } from "react-native";
+import React, { useState, useContext, useRef, useEffect } from "react";
+import { IconProps, SearchBar } from "react-native-elements";
+import {
+  StyleSheet,
+  Text,
+  Animated,
+  View,
+  Pressable,
+  Keyboard,
+} from "react-native";
 import { Marker } from "react-native-maps";
 import { MapContext } from "../context/mapContextProvider";
 import { Favorites } from "./Favorites";
-import { MarkerType } from './Types';
-import { SearchBarBaseProps } from 'react-native-elements/dist/searchbar/SearchBar';
+import { MarkerType } from "./Types";
+import { SearchBarBaseProps } from "react-native-elements/dist/searchbar/SearchBar";
 
-const SafeSearchBar = (SearchBar as unknown) as React.FC<SearchBarBaseProps>;
-export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
-
-  const [searchQuery, setSearchQuery] = useState<string>('');
+const SafeSearchBar = SearchBar as unknown as React.FC<SearchBarBaseProps>;
+export const SearchBarWithIcon = ({ handleOnSearchSelect }: any) => {
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchFieldSelected, setSearchFieldSelected] = useState(false);
   const [searchChoose, setSearchChoose] = useState(false);
   const { initialMarkersContext } = useContext(MapContext);
@@ -21,14 +27,11 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
   // }
 
   useEffect(() => {
-    console.log("Test")
-    if (searchQuery.length > 2)
-    {
-      setSearchFieldSelected(true)
-    }
-    else
-    {
-      setSearchFieldSelected(false)
+    console.log("Test");
+    if (searchQuery.length > 2) {
+      setSearchFieldSelected(true);
+    } else {
+      setSearchFieldSelected(false);
     }
   }, [searchQuery]);
 
@@ -40,11 +43,11 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
   });
 
   const handleButtonPress = (marker: MarkerType) => {
-    console.log(marker.id)
-    setSearchFieldSelected(false)
+    console.log(marker.id);
+    setSearchFieldSelected(false);
     Keyboard.dismiss();
-    setSearchQuery('')
-    handleOnSearchSelect(marker)
+    setSearchQuery("");
+    handleOnSearchSelect(marker);
   };
 
   return (
@@ -53,13 +56,13 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
         placeholder={"Search"}
         onChangeText={(abc: any) => setSearchQuery(abc)}
         value={searchQuery}
-        platform='default'
+        platform="default"
         containerStyle={{
           backgroundColor: "transparent",
           borderBottomColor: "transparent",
           borderTopColor: "transparent",
-          marginTop: '5%',
-          zIndex:3
+          marginTop: "5%",
+          zIndex: 3,
         }}
         inputContainerStyle={{ backgroundColor: "#EDEDED", borderRadius: 10 }}
         searchIcon={{ size: 24, color: "#666" } as IconProps}
@@ -69,49 +72,46 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
         <View style={styles.filteredSearchContainer}>
           {filteredSearch?.map((marker: any) => (
             <View key={marker.id} style={styles.FilteredItemsStart}>
-            <Pressable
-              key={marker.id}
-              onPress={() => handleButtonPress(marker)}
-              style={styles.buttons}
-            >
-              <Text style={styles.titleText}>{marker.title}</Text>
-              <Text>{marker.category}</Text>
-            </Pressable>
+              <Pressable
+                key={marker.id}
+                onPress={() => handleButtonPress(marker)}
+                style={styles.buttons}
+              >
+                <Text style={styles.titleText}>{marker.title}</Text>
+                <Text>{marker.category}</Text>
+              </Pressable>
             </View>
           ))}
         </View>
       )}
-      {searchChoose ? (
-          <Favorites />
-        ) : null}
+      {searchChoose ? <Favorites /> : null}
     </>
   );
 };
 
-
 const styles = StyleSheet.create({
   filteredSearchContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     zIndex: 2,
   },
   FilteredItemsStart: {
-    top: '25%',
+    top: "25%",
   },
   buttons: {
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingVertical: 25,
-    marginLeft: '20%',
+    marginLeft: "20%",
     borderBottomWidth: 3,
-    borderBottomColor: '#e6e6e6',
-    backgroundColor: 'white',
+    borderBottomColor: "#e6e6e6",
+    backgroundColor: "white",
   },
   titleText: {
-    fontSize: 20
+    fontSize: 20,
   },
   markerWrap: {
     justifyContent: "center",

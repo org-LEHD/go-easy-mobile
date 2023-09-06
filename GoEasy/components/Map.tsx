@@ -32,7 +32,7 @@ import { MapViewRoute } from "./MapViewRoute";
 import { SearchBarWithIcon } from "./SearchBar";
 import { Search } from "./Search";
 import { BottomSheetSearch } from "./BottomSheet/BottomsheetSearch";
-import { Test } from "./Test";
+import { SearchBarFilter } from "./SearchBarFilter";
 
 export const Map = () => {
   //Safearea for contents on the device
@@ -45,7 +45,7 @@ export const Map = () => {
     trackRouteContext,
     setTrackRouteContext,
     searchContext,
-    setSearchContext
+    setSearchContext,
   } = useContext(MapContext);
 
   //Define useRefs for later use
@@ -72,7 +72,6 @@ export const Map = () => {
   const [isTrackRouteSelected, setIsTrackRouteSelected] = useState(false);
   const [isSearchInMarkers, setIsSearchInMarkers] = useState(false);
   const [isSearchChoosen, setIsSearchChoosen] = useState(false);
-
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -202,12 +201,15 @@ export const Map = () => {
     setIsFavoriteInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
   };
 
-  const handleOnSearchSelect = useCallback((item: MarkerType) => {
-    setSearchContext({ ...searchContext, ...item });
-    setIsSearchChoosen(true);
-    setIsSearchInMarkers(!!markersContext?.some((m) => m.id === item.id));
-    followUser && setFollowUser(false);
-  }, [searchContext, markersContext])
+  const handleOnSearchSelect = useCallback(
+    (item: MarkerType) => {
+      setSearchContext({ ...searchContext, ...item });
+      setIsSearchChoosen(true);
+      setIsSearchInMarkers(!!markersContext?.some((m) => m.id === item.id));
+      followUser && setFollowUser(false);
+    },
+    [searchContext, markersContext]
+  );
 
   // Handle manual actions on bottom sheet for markers
   useEffect(() => {
@@ -323,7 +325,8 @@ export const Map = () => {
       ]}
     >
       {/* <Test/> */}
-        <SearchBarWithIcon handleOnSearchSelect={handleOnSearchSelect}/>
+      {/* <SearchBarWithIcon handleOnSearchSelect={handleOnSearchSelect}/> */}
+      <SearchBarFilter />
       <View style={styles.toolbar}>
         <TouchableOpacity
           style={[styles.toolbarIcon]}
@@ -376,7 +379,10 @@ export const Map = () => {
       </MapView>
 
       {/* BottomSheet Markers */}
-      {!isFavoriteListSelected && !isFavoriteSelected && !isSearchChoosen && sortedMarkers ? (
+      {!isFavoriteListSelected &&
+      !isFavoriteSelected &&
+      !isSearchChoosen &&
+      sortedMarkers ? (
         <BottomSheetMarkers
           _scrollViewRef={_scrollViewRef}
           handleFollowUser={handleFollowUser}
