@@ -19,12 +19,12 @@ export const BottomSheetSearch = () => {
     if (snap !== -1) {
       setBottomSheetContext({
         ...bottomSheetContext,
-        favoriteSnap: true,
+        searchSnap: true,
       });
       console.log("open");
       return;
     }
-    setBottomSheetContext({ ...bottomSheetContext, favoriteSnap: false });
+    setBottomSheetContext({ ...bottomSheetContext, searchSnap: false });
     console.log("close");
   };
 

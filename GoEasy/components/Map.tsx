@@ -32,6 +32,7 @@ import { MapViewRoute } from "./MapViewRoute";
 import { SearchBarWithIcon } from "./SearchBar";
 import { Search } from "./Search";
 import { BottomSheetSearch } from "./BottomSheet/BottomsheetSearch";
+import { Test } from "./Test";
 
 export const Map = () => {
   //Safearea for contents on the device
@@ -199,11 +200,11 @@ export const Map = () => {
     setIsFavoriteInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
   };
 
-  const handleOnSearchSelect = (item: MarkerType) => {
+  const handleOnSearchSelect = useCallback((item: MarkerType) => {
     setSearchContext({ ...searchContext, ...item });
     setIsSearchChoosen(true);
     setIsSearchInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
-  };
+  }, [searchContext, markersContext])
 
   // Handle manual actions on bottom sheet for markers
   useEffect(() => {
@@ -318,7 +319,8 @@ export const Map = () => {
         },
       ]}
     >
-    <SearchBarWithIcon handleOnSearchSelect={handleOnSearchSelect} active={true}/>
+      {/* <Test/> */}
+        <SearchBarWithIcon handleOnSearchSelect={handleOnSearchSelect}/>
       <View style={styles.toolbar}>
         <TouchableOpacity
           style={[styles.toolbarIcon]}
@@ -365,7 +367,6 @@ export const Map = () => {
 
         {/* The Route */}
         {isTrackRouteSelected && <MapViewRoute _mapRef={_mapRef} />}
-
         {/* The Favorite */}
         {!isFavoriteInMarkers && favoriteContext ? <Favorites /> : null}
         {!isSearchInMarkers && searchContext ? <Search /> : null}

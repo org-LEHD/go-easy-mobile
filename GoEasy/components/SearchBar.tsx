@@ -1,6 +1,6 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { IconProps, SearchBar } from 'react-native-elements';
-import { StyleSheet, Text, Animated, View, Pressable } from "react-native";
+import { StyleSheet, Text, Animated, View, Pressable, Keyboard } from "react-native";
 import { Marker } from "react-native-maps";
 import { MapContext } from "../context/mapContextProvider";
 import { Favorites } from "./Favorites";
@@ -8,20 +8,31 @@ import { MarkerType } from './Types';
 import { SearchBarBaseProps } from 'react-native-elements/dist/searchbar/SearchBar';
 
 const SafeSearchBar = (SearchBar as unknown) as React.FC<SearchBarBaseProps>;
-export const SearchBarWithIcon = ({ handleOnSearchSelect, active }: any) => {
+export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchFieldSelected, setSearchFieldSelected] = useState(false);
   const [searchChoose, setSearchChoose] = useState(false);
-  const [isSearchActive, setIsSearchActive] = useState(active);
   const { initialMarkersContext } = useContext(MapContext);
 
-  if (initialMarkersContext === null) {
-    // You can render a loading indicator or placeholder here if needed
-    return null;
-  }
+  // if (initialMarkersContext === null) {
+  //   // You can render a loading indicator or placeholder here if needed
+  //   return null;
+  // }
 
-  const filteredSearch = initialMarkersContext.filter((marker: MarkerType) => {
+  useEffect(() => {
+    console.log("Test")
+    if (searchQuery.length > 2)
+    {
+      setSearchFieldSelected(true)
+    }
+    else
+    {
+      setSearchFieldSelected(false)
+    }
+  }, []);
+
+  const filteredSearch = initialMarkersContext?.filter((marker: MarkerType) => {
     return (
       marker.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       marker.category.toLowerCase().includes(searchQuery.toLowerCase())
@@ -30,14 +41,15 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect, active }: any) => {
 
   const handleButtonPress = (marker: MarkerType) => {
     console.log(marker.id)
-    setIsSearchActive(false)
+    setSearchFieldSelected(false)
+    Keyboard.dismiss();
+    setSearchQuery('')
     handleOnSearchSelect(marker)
   };
 
   return (
     <>
       <SafeSearchBar
-        
         placeholder={"Search"}
         onChangeText={(abc: any) => setSearchQuery(abc)}
         value={searchQuery}
@@ -51,11 +63,9 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect, active }: any) => {
         }}
         inputContainerStyle={{ backgroundColor: "#EDEDED", borderRadius: 10 }}
         searchIcon={{ size: 24, color: "#666" } as IconProps}
-        onFocus={() => setSearchFieldSelected(true)}
-        onBlur={() => setSearchFieldSelected(false)}
         clearIcon={{ size: 24, color: "#666" } as IconProps}
       />
-      {searchFieldSelected && isSearchActive && (
+      {searchFieldSelected && (
         <View style={styles.filteredSearchContainer}>
           {filteredSearch.map((marker: any) => (
             <View key={marker.id} style={styles.FilteredItemsStart}>
