@@ -39,6 +39,7 @@ export const Markers: FC<MarkersProps> = ({
     markersContext,
     setMarkersContext,
     favoriteContext,
+    searchContext
   } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
 
@@ -124,10 +125,14 @@ export const Markers: FC<MarkersProps> = ({
                 transform: [{ scale: interpolations[index].scale }],
               }
             : {}; // Provide a default empty object if it's undefined
-        const excludedIds = [favoriteContext?.id];
-        const markerImageSource = excludedIds.includes(marker.id)
+        const excludedFavoriteIds = [favoriteContext?.id];
+        const markerImageSourceFavorite = excludedFavoriteIds.includes(marker.id)
           ? require("../assets/map_favorite.png")
           : require("../assets/map_marker.png");
+        const excludedSearchIds = [searchContext?.id];
+        const markerImageSourceSearch = excludedSearchIds.includes(marker.id)
+            ? require("../assets/map_search.png")
+            : require("../assets/map_marker.png");
 
         return (
           <Marker
@@ -137,7 +142,7 @@ export const Markers: FC<MarkersProps> = ({
           >
             <Animated.View style={[styles.markerWrap, scaleStyle]}>
               <Animated.Image
-                source={markerImageSource}
+                source={markerImageSourceFavorite ? markerImageSourceFavorite: markerImageSourceSearch}
                 style={[styles.marker]}
                 resizeMode="cover"
               />

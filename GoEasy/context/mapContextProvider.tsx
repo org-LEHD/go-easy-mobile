@@ -14,6 +14,7 @@ const initialState: AppState = {
     markerSnap: false,
     favoriteListSnap: false,
     favoriteSnap: false,
+    searchSnap: false,
   },
   setBottomSheetContext: () => null,
   favoriteContext: null,
@@ -22,6 +23,8 @@ const initialState: AppState = {
   setTrackRouteContext: () => null,
   initialMarkersContext: null,
   setInitialMarkersContext: () => null,
+  searchContext: null,
+  setSearchContext: () => null,
 };
 
 const actions = {
@@ -30,6 +33,7 @@ const actions = {
   SET_FAVORITECONTEXT: "SET_FAVORITECONTEXT",
   SET_TRACKROUTECONTEXT: "SET_TRACKROUTECONTEXT",
   SET_INITIALMARKERSCONTEXT: "SET_INITIALMARKERSCONTEXT",
+  SET_SEARCHCONTEXT: "SET_SEARCHCONTEXT",
 };
 
 function reducer(state: AppState, action: Action): AppState {
@@ -44,6 +48,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, trackRouteContext: action.value };
     case actions.SET_INITIALMARKERSCONTEXT:
       return { ...state, initialMarkersContext: action.value };
+    case actions.SET_SEARCHCONTEXT:
+      return { ...state, searchContext: action.value };
     default:
       return state;
   }
@@ -76,6 +82,7 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
     favoriteContext: state.favoriteContext,
     trackRouteContext: state.trackRouteContext,
     initialMarkersContext: state.initialMarkersContext,
+    searchContext: state.searchContext,
     setMarkersContext: (value: AppState) => {
       dispatch({ type: actions.SET_MARKERSCONTEXT, value });
     },
@@ -90,6 +97,9 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
     },
     setInitialMarkersContext: (value: AppState) => {
       dispatch({ type: actions.SET_INITIALMARKERSCONTEXT, value });
+    },
+    setSearchContext: (value: AppState) => {
+      dispatch({ type: actions.SET_SEARCHCONTEXT, value });
     },
   };
 
