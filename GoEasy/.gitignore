@@ -10,7 +10,7 @@ npm-debug.*
 *.orig.*
 web-build/
 app.json
-
+data/googleApiKeys.ts
 # macOS
 .DS_Store
 
