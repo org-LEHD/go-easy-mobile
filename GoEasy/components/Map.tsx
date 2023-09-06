@@ -189,7 +189,9 @@ export const Map = () => {
 
   // Handle opening the favorite list
   const handleFavoriteList = () => {
-    !isFavoriteListSelected && setIsFavoriteListSelected(true);
+    !isFavoriteListSelected &&
+      !isFavoriteSelected &&
+      setIsFavoriteListSelected(true);
     followUser && setFollowUser(false);
   };
 
@@ -380,7 +382,7 @@ export const Map = () => {
         />
       ) : null}
       {/* BottomSheet Favorite list */}
-      {isFavoriteListSelected ? (
+      {isFavoriteListSelected && !isFavoriteSelected ? (
         <BottomSheetFavoriteList
           handleOnFavoriteSelect={handleOnFavoriteSelect}
         />
