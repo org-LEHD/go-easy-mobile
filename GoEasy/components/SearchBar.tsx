@@ -120,4 +120,9 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
   },
+  scrollView: {
+    flex: 1,
+    top: 130,
+    marginBottom: 135,
+  },
 });
