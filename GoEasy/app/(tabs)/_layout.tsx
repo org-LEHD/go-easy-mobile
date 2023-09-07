@@ -54,7 +54,7 @@ const TabsLayout = () => {
   };
   const handleButtonWeb = () => {
     // Call the web
-    Linking.openURL(selectedMarker?.website ?? "https://pappaspizza-lynge.dk/");
+    Linking.openURL(selectedMarker?.website ?? "https://Google.dk/");
   };
 
   return (
