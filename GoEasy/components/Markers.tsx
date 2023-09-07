@@ -128,10 +128,7 @@ export const Markers: FC<MarkersProps> = ({
         // Check for favorite and search markers
         const isFavorite = favoriteContext?.id === marker.id;
         const isSearch = searchContext?.id === marker.id;
-
-        // Determine the marker image source based on conditions
-        let markerImageSource = require("../assets/map_marker.png");
-
+        let markerImageSource;
         // Use a switch statement to determine the marker image source
         switch (true) {
           case isFavorite:
@@ -141,7 +138,8 @@ export const Markers: FC<MarkersProps> = ({
             markerImageSource = require("../assets/map_search.png");
             break;
           default:
-            // Use the default marker image
+            // Determine the marker image source based on conditions
+            markerImageSource = require("../assets/map_marker.png");
             break;
         }
         return (

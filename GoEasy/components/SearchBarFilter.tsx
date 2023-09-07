@@ -25,7 +25,8 @@ const SafeSearchBar = SearchBar as unknown as React.FC<SearchBarBaseProps>;
 
 export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
   const { fetchInitialPoi } = usePoiApi();
-  const { initialMarkersContext } = useContext(MapContext);
+  const { initialMarkersContext, isPoiContext, setIsPoiContext } =
+    useContext(MapContext);
 
   const [poi, setPoi] = useState<PoiType[] | null>(null);
   const [isPoi, setIsPoi] = useState<boolean>(false);
@@ -50,13 +51,14 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
     fetchData();
   }, []);
 
-  // useEffect(() => {
-  //   setFilteredDataSource(initialMarkersContext as MarkerType[]);
-  // }, [initialMarkersContext]);
-
   useEffect(() => {
     setFilteredPoiSource(poi as MarkerType[]);
   }, [poi]);
+
+  useEffect(() => {
+    isPoi && setIsPoiContext(true);
+    isSearch && setIsPoiContext(false);
+  }, [isPoi, isSearch]);
 
   const searchFilterFunction = (text: string) => {
     setIsSearch(false);
@@ -102,11 +104,25 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
   };
 
   const ItemView = ({ item }: any) => {
+    const [number, name, area, city] = item.address?.split(",") || [];
     return (
       // Flat List Item
-      <Text style={styles.itemStyle} onPress={() => getItem(item)}>
-        {item.title}
-      </Text>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.row} onPress={() => getItem(item)}>
+          <View style={styles.screenIcon}>
+            {isPoi && <SVGIcons.Poi color={"#888888"} />}
+            {isSearch && <SVGIcons.Clock color={"#888888"} scale={1.2} />}
+          </View>
+          <View style={styles.textContent}>
+            <Text style={styles.title}>{item?.title}</Text>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={styles.address}
+            >{`${name ?? ""} ${number ?? ""}${city ? ", " + city : ""}`}</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -193,12 +209,23 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
       </View>
       {isPoi || isSearch ? (
         <View style={styles.flatlist}>
-          <FlatList
-            data={dataSource}
-            keyExtractor={(item, index) => index.toString()}
-            ItemSeparatorComponent={ItemSeparatorView}
-            renderItem={ItemView}
-          />
+          {dataSource.length ? (
+            <FlatList
+              data={dataSource}
+              keyExtractor={(item, index) => index.toString()}
+              ItemSeparatorComponent={ItemSeparatorView}
+              renderItem={ItemView}
+              ListHeaderComponent={() => (
+                <View style={styles.flatListContainer}>
+                  <Text style={styles.flatListResult}>Resultater</Text>
+                </View>
+              )}
+            />
+          ) : (
+            <Text style={styles.flatListNoResults}>
+              Ingen Resultater fundet
+            </Text>
+          )}
         </View>
       ) : null}
     </>
@@ -248,7 +275,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#0064fe",
     borderTopStartRadius: 0,
     borderBottomStartRadius: 0,
-
     shadowColor: "rgba(0, 0, 0, 0.3)",
     shadowOffset: {
       width: 0,
@@ -287,9 +313,62 @@ const styles = StyleSheet.create({
     paddingTop: 120,
     paddingHorizontal: 20,
   },
+  flatListContainer: {
+    width: "100%",
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  flatListResult: { width: "100%", marginBottom: 10 },
+  flatListNoResults: {
+    fontSize: 18,
+    textAlign: "center",
+    marginTop: 20,
+  },
 
-  itemStyle: {
-    marginTop: 10,
-    padding: 10,
+  container: {
+    width: "100%",
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deletebox: {
+    backgroundColor: "#FE0045",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 70,
+    height: 60,
+    marginBottom: 20,
+    marginRight: 20,
+  },
+  row: {
+    flexDirection: "row",
+    width: "100%",
+    alignItems: "center",
+    height: 60,
+    marginBottom: 20,
+    borderBottomColor: "#DEDEDE",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  screenIcon: {
+    backgroundColor: "#E8E9E9",
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 20,
+  },
+  textContent: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 20,
+    marginBottom: 3,
+  },
+  address: {
+    fontSize: 10,
+    marginBottom: 3,
+    marginStart: -2,
   },
 });

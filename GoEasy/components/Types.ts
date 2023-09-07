@@ -67,6 +67,8 @@ export interface AppState {
   setTrackRouteContext: any;
   initialPoiContext: MarkerType | null;
   setInitialPoiContext: any;
+  isPoiContext: boolean;
+  setIsPoiContext: any;
 }
 
 export interface Action {

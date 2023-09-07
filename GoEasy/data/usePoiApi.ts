@@ -11,20 +11,29 @@ export const usePoiApi = () => {
           name,
           address,
           description,
+          summary,
           category,
           lat,
           long,
           thumbnail,
         } = item;
 
-        // Perform any additional transformations or operations on the item here
+        // Translate category in mappings
+        const categoryMappings: Record<string, string> = {
+          Church: "Kirke",
+          Theater: "Teater",
+          Cinema: "Biograf",
+        };
+        // Check if the category value exists in the mapping
+        const updatedCategory = categoryMappings[category] || category;
 
         return {
           id,
           title: name,
           address,
-          category,
+          category: updatedCategory,
           description,
+          summary,
           coords: {
             latitude: lat,
             longitude: long,

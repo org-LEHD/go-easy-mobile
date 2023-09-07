@@ -11,6 +11,7 @@ import { Search } from "./Icons/search";
 import { Close } from "./Icons/close";
 import { ArrowLight } from "./Icons/arrowlight";
 import { Poi } from "./Icons/poi";
+import { Clock } from "./Icons/clock";
 
 export const SVGIcons = {
   Route,
@@ -27,4 +28,5 @@ export const SVGIcons = {
   Search,
   Close,
   Poi,
+  Clock,
 };

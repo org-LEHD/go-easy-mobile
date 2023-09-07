@@ -20,13 +20,18 @@ export const useMarkerApi = () => {
           thumbnail,
         } = item;
 
-        // Perform any additional transformations or operations on the item here
+        // Translate category in mappings
+        const categoryMappings: Record<string, string> = {
+          Museum: "Museum",
+        };
+        // Check if the category value exists in the mapping
+        const updatedCategory = categoryMappings[category] || category;
 
         return {
           id,
           title: name,
           address,
-          category,
+          category: updatedCategory,
           phone,
           description,
           summary,
