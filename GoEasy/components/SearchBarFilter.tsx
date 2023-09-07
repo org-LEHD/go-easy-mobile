@@ -37,8 +37,8 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
   );
   const [filteredPoiSource, setFilteredPoiSource] = useState<MarkerType[]>([]);
 
+  //call api to get the initial Poi
   useEffect(() => {
-    // Define an async function to fetch and log the initial ads
     const fetchData = async () => {
       try {
         const initialPoi = await fetchInitialPoi();
@@ -47,10 +47,10 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
         console.error(error);
       }
     };
-    // Call the async function to fetch the data
     fetchData();
   }, []);
 
+  //Set state to show a list
   useEffect(() => {
     setFilteredPoiSource(poi as MarkerType[]);
   }, [poi]);
@@ -60,13 +60,14 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
     isSearch && setIsPoiContext(false);
   }, [isPoi, isSearch]);
 
+  //Is activated when typing in searchfield starts
   const searchFilterFunction = (text: string) => {
     setIsSearch(false);
     if (text.length >= 1 && !isPoi) {
       setIsSearch(true);
     }
     if (text && isPoi) {
-      const newData = poi?.filter(function (item: any) {
+      const newData = filteredPoiSource?.filter(function (item: any) {
         const itemData = item.title
           ? item.title.toLowerCase()
           : "".toLowerCase();
@@ -74,7 +75,7 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
         return itemData.includes(textData);
       });
 
-      newData && setFilteredDataSource(newData as any);
+      newData && setFilteredPoiSource(newData as MarkerType[]);
       setSearch(text);
     } else {
       const newData = initialMarkersContext?.filter(function (
@@ -178,7 +179,7 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
           inputContainerStyle={{
             backgroundColor: "transparent",
             marginStart: 40,
-            marginEnd: isSearch ? 0 : 40,
+            marginEnd: isSearch ? 0 : 50,
           }}
           clearIcon={
             {

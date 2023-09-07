@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Review } from "../../components/Review";
@@ -10,12 +10,14 @@ import {
   FLEX_HEIGHT,
 } from "../../constants/constants";
 import { MarkerType } from "../Types";
+import { MapContext } from "../../context/mapContextProvider";
 
 interface MarkerProps {
   marker: MarkerType;
 }
 
 export const BottomSheetMarkerMeta = ({ marker }: MarkerProps) => {
+  const { isPoiContext } = useContext(MapContext);
   const router = useRouter();
   return (
     <>
@@ -26,14 +28,16 @@ export const BottomSheetMarkerMeta = ({ marker }: MarkerProps) => {
         </View>
         <View style={styles.rightCol}>
           <TrackRoute marker={marker} />
-          <TouchableOpacity
-            style={styles.link}
-            onPress={() => {
-              router.push(`../../home/${marker?.id}`);
-            }}
-          >
-            <SVGIcons.Arrow left={true} scale={FLEX_HEIGHT ? 1.7 : 1.2} />
-          </TouchableOpacity>
+          {!isPoiContext ? (
+            <TouchableOpacity
+              style={styles.link}
+              onPress={() => {
+                router.push(`../../home/${marker?.id}`);
+              }}
+            >
+              <SVGIcons.Arrow left={true} scale={FLEX_HEIGHT ? 1.7 : 1.2} />
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
     </>

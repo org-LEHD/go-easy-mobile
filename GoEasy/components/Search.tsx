@@ -1,7 +1,6 @@
 import React, { useEffect, useContext } from "react";
 import { StyleSheet, Animated, Text } from "react-native";
 import { LatLng, Marker } from "react-native-maps";
-
 import { MapContext } from "../context/mapContextProvider";
 import { MarkerType } from "./Types";
 
