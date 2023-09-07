@@ -2,7 +2,6 @@ import { ScrollView, View, Text, StyleSheet, Image } from "react-native";
 import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "expo-router";
-import { MapContext } from "../../../context/mapContextProvider";
 import { Review } from "../../../components/Review";
 import { Card } from "../../../components/Card";
 import { useAdsApi } from "../../../data/useAdsApi";

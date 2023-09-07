@@ -18,7 +18,7 @@ import { IconProps, SearchBar } from "react-native-elements";
 import { SearchBarBaseProps } from "react-native-elements/dist/searchbar/SearchBar";
 import { SVGIcons } from "./SVG-Icons/Svg";
 import { MapContext } from "../context/mapContextProvider";
-import { MarkerType } from "./Types";
+import { MarkerType, PoiType } from "./Types";
 import { usePoiApi } from "../data/usePoiApi";
 
 const SafeSearchBar = SearchBar as unknown as React.FC<SearchBarBaseProps>;
@@ -26,30 +26,37 @@ const SafeSearchBar = SearchBar as unknown as React.FC<SearchBarBaseProps>;
 export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
   const { fetchInitialPoi } = usePoiApi();
   const { initialMarkersContext } = useContext(MapContext);
+
+  const [poi, setPoi] = useState<PoiType[] | null>(null);
   const [isPoi, setIsPoi] = useState<boolean>(false);
   const [isSearch, setIsSearch] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
-  const [filteredDataSource, setFilteredDataSource] = useState<MarkerType[]>(
+  const [filteredMarkersSource, setFilteredDataSource] = useState<MarkerType[]>(
     initialMarkersContext as MarkerType[]
   );
+  const [filteredPoiSource, setFilteredPoiSource] = useState<MarkerType[]>([]);
 
   useEffect(() => {
     // Define an async function to fetch and log the initial ads
     const fetchData = async () => {
       try {
         const initialPoi = await fetchInitialPoi();
-        console.log(initialPoi);
+        setPoi(initialPoi);
       } catch (error) {
         console.error(error);
       }
     };
     // Call the async function to fetch the data
     fetchData();
-  }, [fetchInitialPoi]);
+  }, []);
+
+  // useEffect(() => {
+  //   setFilteredDataSource(initialMarkersContext as MarkerType[]);
+  // }, [initialMarkersContext]);
 
   useEffect(() => {
-    setFilteredDataSource(initialMarkersContext as MarkerType[]);
-  }, [initialMarkersContext]);
+    setFilteredPoiSource(poi as MarkerType[]);
+  }, [poi]);
 
   const searchFilterFunction = (text: string) => {
     setIsSearch(false);
@@ -57,9 +64,7 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
       setIsSearch(true);
     }
     if (text && isPoi) {
-      const newData = initialMarkersContext?.filter(function (
-        item: MarkerType
-      ) {
+      const newData = poi?.filter(function (item: any) {
         const itemData = item.title
           ? item.title.toLowerCase()
           : "".toLowerCase();
@@ -67,7 +72,7 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
         return itemData.includes(textData);
       });
 
-      newData && setFilteredDataSource(newData);
+      newData && setFilteredDataSource(newData as any);
       setSearch(text);
     } else {
       const newData = initialMarkersContext?.filter(function (
@@ -131,6 +136,12 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
     Keyboard.dismiss();
   };
 
+  const dataSource = isPoi
+    ? filteredPoiSource
+    : isSearch
+    ? filteredMarkersSource
+    : [];
+
   return (
     <>
       <View style={styles.searchbar}>
@@ -183,7 +194,7 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
       {isPoi || isSearch ? (
         <View style={styles.flatlist}>
           <FlatList
-            data={filteredDataSource}
+            data={dataSource}
             keyExtractor={(item, index) => index.toString()}
             ItemSeparatorComponent={ItemSeparatorView}
             renderItem={ItemView}

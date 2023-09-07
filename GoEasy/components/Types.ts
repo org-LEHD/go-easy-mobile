@@ -36,6 +36,15 @@ export interface AddType {
   media: string;
   title: string;
 }
+export interface PoiType {
+  id: number;
+  coords: Coords;
+  title: string;
+  category: string;
+  thumbnail: string;
+  address: string;
+  description: string;
+}
 
 export interface BottomSheetType {
   markerSnap: boolean;
