@@ -44,6 +44,8 @@ export interface BottomSheetType {
   searchSnap: boolean;
 }
 export interface AppState {
+  initialMarkersContext: MarkerType[] | null;
+  setInitialMarkersContext: any;
   markersContext: MarkerType[] | null;
   setMarkersContext: any;
   bottomSheetContext: BottomSheetType;
@@ -54,8 +56,8 @@ export interface AppState {
   setSearchContext: any;
   trackRouteContext: any;
   setTrackRouteContext: any;
-  initialMarkersContext: MarkerType[] | null;
-  setInitialMarkersContext: any;
+  initialPoiContext: MarkerType | null;
+  setInitialPoiContext: any;
 }
 
 export interface Action {

@@ -5,7 +5,7 @@ export const useAdsApi = (id: any) => {
       const response = await fetch(url);
       const json = await response.json();
       const responseData = json[0].result?.data?.json || json;
-      const initialAdds = responseData.map((item: any) => {
+      const initialAds = responseData.map((item: any) => {
         const { id, locationId, title, media, description } = item;
 
         // Perform any additional transformations or operations on the item here
@@ -18,7 +18,7 @@ export const useAdsApi = (id: any) => {
           description,
         };
       });
-      return initialAdds;
+      return initialAds;
     } catch (error) {
       console.error(error);
     }

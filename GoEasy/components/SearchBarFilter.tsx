@@ -12,29 +12,51 @@ import {
   View,
   FlatList,
   TouchableOpacity,
+  Keyboard,
 } from "react-native";
 import { IconProps, SearchBar } from "react-native-elements";
 import { SearchBarBaseProps } from "react-native-elements/dist/searchbar/SearchBar";
 import { SVGIcons } from "./SVG-Icons/Svg";
 import { MapContext } from "../context/mapContextProvider";
 import { MarkerType } from "./Types";
+import { usePoiApi } from "../data/usePoiApi";
 
 const SafeSearchBar = SearchBar as unknown as React.FC<SearchBarBaseProps>;
 
-export const SearchBarFilter = () => {
+export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
+  const { fetchInitialPoi } = usePoiApi();
   const { initialMarkersContext } = useContext(MapContext);
-  const [poiSelected, setPoiSelected] = useState<boolean>(false);
-  const [search, setSearch] = useState("");
+  const [isPoi, setIsPoi] = useState<boolean>(false);
+  const [isSearch, setIsSearch] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
   const [filteredDataSource, setFilteredDataSource] = useState<MarkerType[]>(
     initialMarkersContext as MarkerType[]
   );
+
+  useEffect(() => {
+    // Define an async function to fetch and log the initial ads
+    const fetchData = async () => {
+      try {
+        const initialPoi = await fetchInitialPoi();
+        console.log(initialPoi);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    // Call the async function to fetch the data
+    fetchData();
+  }, [fetchInitialPoi]);
 
   useEffect(() => {
     setFilteredDataSource(initialMarkersContext as MarkerType[]);
   }, [initialMarkersContext]);
 
   const searchFilterFunction = (text: string) => {
-    if (text) {
+    setIsSearch(false);
+    if (text.length >= 1 && !isPoi) {
+      setIsSearch(true);
+    }
+    if (text && isPoi) {
       const newData = initialMarkersContext?.filter(function (
         item: MarkerType
       ) {
@@ -42,14 +64,35 @@ export const SearchBarFilter = () => {
           ? item.title.toLowerCase()
           : "".toLowerCase();
         const textData = text.toLowerCase();
-        return itemData.indexOf(textData) > -1;
+        return itemData.includes(textData);
       });
 
       newData && setFilteredDataSource(newData);
       setSearch(text);
     } else {
-      setFilteredDataSource(filteredDataSource);
+      const newData = initialMarkersContext?.filter(function (
+        item: MarkerType
+      ) {
+        const itemTitle = item.title
+          ? item.title.toLowerCase()
+          : "".toLowerCase();
+        const itemCategory = item.category
+          ? item.category.toLowerCase()
+          : "".toLowerCase();
+
+        const textData = text.toLowerCase();
+
+        const matchesTitle = itemTitle.includes(textData);
+        const matchesCategory = itemCategory.includes(textData);
+
+        return matchesTitle || matchesCategory;
+      });
+
+      newData && setFilteredDataSource(newData);
       setSearch(text);
+    }
+    if (!text) {
+      Keyboard.dismiss(); // Dismiss the keyboard only if there is no text
     }
   };
 
@@ -76,8 +119,16 @@ export const SearchBarFilter = () => {
   };
 
   const getItem = (item: any) => {
-    // Function for click on an item
-    alert("Id : " + item.id + " Title : " + item.title);
+    handleOnSearchSelect(item);
+    handleEndSearch();
+  };
+
+  const handleEndSearch = () => {
+    isPoi && setIsPoi(false);
+    isSearch && setIsSearch(false);
+    searchFilterFunction("");
+    setSearch("");
+    Keyboard.dismiss();
   };
 
   return (
@@ -87,7 +138,7 @@ export const SearchBarFilter = () => {
           leftIconContainerStyle={{ display: "none" }}
           onChangeText={(text: string) => searchFilterFunction(text)}
           onClear={() => searchFilterFunction("")}
-          placeholder="Type Here..."
+          placeholder="Søgning..."
           value={search}
           platform={"default"}
           containerStyle={{
@@ -99,13 +150,20 @@ export const SearchBarFilter = () => {
           }}
           inputContainerStyle={{
             backgroundColor: "transparent",
-            marginHorizontal: 50,
+            marginStart: 40,
+            marginEnd: isSearch ? 0 : 40,
           }}
-          clearIcon={{ size: 24, color: "#AAAAAA" } as IconProps}
+          clearIcon={
+            {
+              size: 24,
+              color: "#AAAAAA",
+              style: { display: search ? "flex" : "none" },
+            } as IconProps
+          }
         />
         <View style={styles.leftContainer}>
-          {poiSelected ? (
-            <TouchableOpacity onPress={() => setPoiSelected(false)}>
+          {isPoi || isSearch ? (
+            <TouchableOpacity onPress={() => handleEndSearch()}>
               <SVGIcons.ArrowLight />
             </TouchableOpacity>
           ) : (
@@ -114,13 +172,15 @@ export const SearchBarFilter = () => {
             </TouchableOpacity>
           )}
         </View>
-        <View style={styles.rightContainer}>
-          <TouchableOpacity onPress={() => setPoiSelected(true)}>
-            <SVGIcons.Poi />
-          </TouchableOpacity>
-        </View>
+        {!isSearch ? (
+          <View style={styles.rightContainer}>
+            <TouchableOpacity onPress={() => setIsPoi(true)}>
+              <SVGIcons.Poi />
+            </TouchableOpacity>
+          </View>
+        ) : null}
       </View>
-      {poiSelected ? (
+      {isPoi || isSearch ? (
         <View style={styles.flatlist}>
           <FlatList
             data={filteredDataSource}

@@ -71,7 +71,7 @@ export const Map = () => {
   const [isFavoriteSelected, setIsFavoriteSelected] = useState(false);
   const [isTrackRouteSelected, setIsTrackRouteSelected] = useState(false);
   const [isSearchInMarkers, setIsSearchInMarkers] = useState(false);
-  const [isSearchChoosen, setIsSearchChoosen] = useState(false);
+  const [isSearchSelected, setIsSearchSelected] = useState(false);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -190,6 +190,7 @@ export const Map = () => {
   const handleFavoriteList = () => {
     !isFavoriteListSelected &&
       !isFavoriteSelected &&
+      !isSearchSelected &&
       setIsFavoriteListSelected(true);
     followUser && setFollowUser(false);
   };
@@ -201,15 +202,12 @@ export const Map = () => {
     setIsFavoriteInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
   };
 
-  const handleOnSearchSelect = useCallback(
-    (item: MarkerType) => {
-      setSearchContext({ ...searchContext, ...item });
-      setIsSearchChoosen(true);
-      setIsSearchInMarkers(!!markersContext?.some((m) => m.id === item.id));
-      followUser && setFollowUser(false);
-    },
-    [searchContext, markersContext]
-  );
+  const handleOnSearchSelect = (item: MarkerType) => {
+    setSearchContext({ ...searchContext, ...item });
+    setIsSearchSelected(true);
+    setIsSearchInMarkers(!!markersContext?.some((m) => m.id === item.id));
+    followUser && setFollowUser(false);
+  };
 
   // Handle manual actions on bottom sheet for markers
   useEffect(() => {
@@ -238,7 +236,7 @@ export const Map = () => {
 
   useEffect(() => {
     if (!bottomSheetContext.searchSnap) {
-      isSearchChoosen && setIsSearchChoosen(false);
+      isSearchSelected && setIsSearchSelected(false);
       !isTrackRouteSelected && searchContext && setSearchContext(null);
       !followUser && setFollowUser(true);
     }
@@ -306,7 +304,7 @@ export const Map = () => {
     isTrackRouteSelected && setIsTrackRouteSelected(false);
     isFavoriteSelected && setIsFavoriteSelected(false);
     searchContext && setSearchContext(null);
-    isSearchChoosen && setIsSearchChoosen(false);
+    isSearchSelected && setIsSearchSelected(false);
     InteractionManager.runAfterInteractions(() =>
       animateToRegion(userLocation, 350, _mapRef)
     );
@@ -326,7 +324,7 @@ export const Map = () => {
     >
       {/* <Test/> */}
       {/* <SearchBarWithIcon handleOnSearchSelect={handleOnSearchSelect}/> */}
-      <SearchBarFilter />
+      <SearchBarFilter handleOnSearchSelect={handleOnSearchSelect} />
       <View style={styles.toolbar}>
         <TouchableOpacity
           style={[styles.toolbarIcon]}
@@ -381,7 +379,7 @@ export const Map = () => {
       {/* BottomSheet Markers */}
       {!isFavoriteListSelected &&
       !isFavoriteSelected &&
-      !isSearchChoosen &&
+      !isSearchSelected &&
       sortedMarkers ? (
         <BottomSheetMarkers
           _scrollViewRef={_scrollViewRef}
@@ -389,14 +387,14 @@ export const Map = () => {
         />
       ) : null}
       {/* BottomSheet Favorite list */}
-      {isFavoriteListSelected && !isFavoriteSelected ? (
+      {isFavoriteListSelected && !isFavoriteSelected && !isSearchSelected ? (
         <BottomSheetFavoriteList
           handleOnFavoriteSelect={handleOnFavoriteSelect}
         />
       ) : null}
       {/* BottomSheet Favorite */}
       {isFavoriteSelected ? <BottomSheetFavorite /> : null}
-      {isSearchChoosen ? <BottomSheetSearch /> : null}
+      {isSearchSelected ? <BottomSheetSearch /> : null}
     </View>
   );
 };
