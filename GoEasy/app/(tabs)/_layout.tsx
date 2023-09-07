@@ -9,9 +9,10 @@ import { useFavoriteAsyncStorage } from "../../hooks/useFavoriteAsyncStorage";
 import { MarkerType } from "../../components/Types";
 
 const TabsLayout = () => {
-  const { markersContext } = useContext(MapContext);
+  const { markersContext, initialMarkersContext } = useContext(MapContext);
   const { id } = useSearchParams();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState<MarkerType>();
   const {
     getSingleStorageFavorite,
     setStorageFavorites,
@@ -20,11 +21,14 @@ const TabsLayout = () => {
 
   useEffect(() => {
     const fetchFavorite = async () => {
+      // console.log("Initial: ", initialMarkersContext)
       const singleFavorite = await getSingleStorageFavorite(
         Number(id),
         markersContext as MarkerType[]
       );
       if (singleFavorite) setIsFavorite(true);
+      setSelectedMarker(initialMarkersContext?.find((marker) => marker.id === Number(id)));
+      console.log(selectedMarker)
     };
     fetchFavorite();
   }, []);
@@ -46,11 +50,11 @@ const TabsLayout = () => {
 
   const handleButtonPhone = () => {
     // Call the phone number
-    Linking.openURL("tel:23265722");
+    Linking.openURL(`tel:${selectedMarker?.phone}`);
   };
   const handleButtonWeb = () => {
     // Call the web
-    Linking.openURL("https://pappaspizza-lynge.dk/");
+    Linking.openURL(selectedMarker?.website ?? "https://pappaspizza-lynge.dk/");
   };
 
   return (
@@ -123,7 +127,7 @@ const TabsLayout = () => {
           tabPress: (e: { preventDefault: () => void }) => {
             // Prevent default action
             e.preventDefault();
-            Alert.alert("Call:", "23265722", [
+            Alert.alert("Call:", `${selectedMarker?.phone}`, [
               {
                 text: "Cancel",
                 style: "default",

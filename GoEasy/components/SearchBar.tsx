@@ -6,6 +6,7 @@ import { MapContext } from "../context/mapContextProvider";
 import { Favorites } from "./Favorites";
 import { MarkerType } from './Types';
 import { SearchBarBaseProps } from 'react-native-elements/dist/searchbar/SearchBar';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const SafeSearchBar = (SearchBar as unknown) as React.FC<SearchBarBaseProps>;
 export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
@@ -53,22 +54,24 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
         placeholder={"Search"}
         onChangeText={(abc: any) => setSearchQuery(abc)}
         value={searchQuery}
-        platform='default'
+        platform="default"
         containerStyle={{
           backgroundColor: "transparent",
           borderBottomColor: "transparent",
           borderTopColor: "transparent",
-          marginTop: '5%',
-          zIndex:3
+          marginTop: "5%",
+          zIndex: 3,
         }}
         inputContainerStyle={{ backgroundColor: "#EDEDED", borderRadius: 10 }}
         searchIcon={{ size: 24, color: "#666" } as IconProps}
         clearIcon={{ size: 24, color: "#666" } as IconProps}
       />
       {searchFieldSelected && (
+        
         <View style={styles.filteredSearchContainer}>
-          {filteredSearch?.map((marker: any) => (
-            <View key={marker.id} style={styles.FilteredItemsStart}>
+      <ScrollView style={styles.scrollView} >
+        {filteredSearch?.map((marker: any) => (
+          <View key={marker.id} style={styles.FilteredItemsStart}>
             <Pressable
               key={marker.id}
               onPress={() => handleButtonPress(marker)}
@@ -77,13 +80,12 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect}: any) => {
               <Text style={styles.titleText}>{marker.title}</Text>
               <Text>{marker.category}</Text>
             </Pressable>
-            </View>
-          ))}
-        </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
       )}
-      {searchChoose ? (
-          <Favorites />
-        ) : null}
+      {searchChoose ? <Favorites /> : null}
     </>
   );
 };
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   FilteredItemsStart: {
-    top: '25%',
+    top: 0,
   },
   buttons: {
     justifyContent: 'center',
@@ -119,5 +121,10 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 50,
     height: 50,
+  },
+  scrollView: {
+    flex: 1,
+    top: 130,
+    marginBottom: 135,
   },
 });
