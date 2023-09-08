@@ -36,23 +36,39 @@ export interface AddType {
   media: string;
   title: string;
 }
+export interface PoiType {
+  id: number;
+  coords: Coords;
+  title: string;
+  category: string;
+  thumbnail: string;
+  address: string;
+  description: string;
+}
 
 export interface BottomSheetType {
   markerSnap: boolean;
   favoriteListSnap: boolean;
   favoriteSnap: boolean;
+  searchSnap: boolean;
 }
 export interface AppState {
+  initialMarkersContext: MarkerType[] | null;
+  setInitialMarkersContext: any;
   markersContext: MarkerType[] | null;
   setMarkersContext: any;
   bottomSheetContext: BottomSheetType;
   setBottomSheetContext: any;
   favoriteContext: MarkerType | null;
   setFavoriteContext: any;
+  searchContext: MarkerType | null;
+  setSearchContext: any;
   trackRouteContext: any;
   setTrackRouteContext: any;
-  initialMarkersContext: MarkerType[] | null;
-  setInitialMarkersContext: any;
+  initialPoiContext: MarkerType | null;
+  setInitialPoiContext: any;
+  isPoiContext: boolean;
+  setIsPoiContext: any;
 }
 
 export interface Action {

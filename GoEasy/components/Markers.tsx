@@ -39,12 +39,12 @@ export const Markers: FC<MarkersProps> = ({
     markersContext,
     setMarkersContext,
     favoriteContext,
+    searchContext,
   } = useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
 
   //useRefs
   let _mapIndex = useRef<any>(null);
-
   const filteredMarkers = useMemo(() => {
     const addDistanceToMarkers = initialMarkersContext?.map((marker: any) => {
       const { latitude, longitude } = userLocation;
@@ -86,7 +86,7 @@ export const Markers: FC<MarkersProps> = ({
           animateToRegion(newCoords, 350, _mapRef)
         );
 
-        //handleFollowUser(false);
+        handleFollowUser(false);
       }
     });
     //Cleanup function. This will ensure that markers don't hold a reference to the initial state and uses the updated state.
@@ -123,12 +123,25 @@ export const Markers: FC<MarkersProps> = ({
             ? {
                 transform: [{ scale: interpolations[index].scale }],
               }
-            : {}; // Provide a default empty object if it's undefined
-        const excludedIds = [favoriteContext?.id];
-        const markerImageSource = excludedIds.includes(marker.id)
-          ? require("../assets/map_favorite.png")
-          : require("../assets/map_marker.png");
+            : {};
 
+        // Check for favorite and search markers
+        const isFavorite = favoriteContext?.id === marker.id;
+        const isSearch = searchContext?.id === marker.id;
+        let markerImageSource;
+        // Use a switch statement to determine the marker image source
+        switch (true) {
+          case isFavorite:
+            markerImageSource = require("../assets/map_favorite.png");
+            break;
+          case isSearch:
+            markerImageSource = require("../assets/map_search.png");
+            break;
+          default:
+            // Determine the marker image source based on conditions
+            markerImageSource = require("../assets/map_marker.png");
+            break;
+        }
         return (
           <Marker
             coordinate={marker.coords}

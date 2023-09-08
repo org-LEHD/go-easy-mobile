@@ -29,6 +29,10 @@ import { BottomSheetFavoriteList } from "./BottomSheet/BottomsheetFavoriteList";
 import { Favorites } from "./Favorites";
 import { BottomSheetFavorite } from "./BottomSheet/BottomsheetFavorite";
 import { MapViewRoute } from "./MapViewRoute";
+import { SearchBarWithIcon } from "./SearchBar";
+import { Search } from "./Search";
+import { BottomSheetSearch } from "./BottomSheet/BottomsheetSearch";
+import { SearchBarFilter } from "./SearchBarFilter";
 
 export const Map = () => {
   //Safearea for contents on the device
@@ -40,6 +44,8 @@ export const Map = () => {
     setFavoriteContext,
     trackRouteContext,
     setTrackRouteContext,
+    searchContext,
+    setSearchContext,
   } = useContext(MapContext);
 
   //Define useRefs for later use
@@ -64,6 +70,8 @@ export const Map = () => {
   const [isFavoriteListSelected, setIsFavoriteListSelected] = useState(false);
   const [isFavoriteSelected, setIsFavoriteSelected] = useState(false);
   const [isTrackRouteSelected, setIsTrackRouteSelected] = useState(false);
+  const [isSearchInMarkers, setIsSearchInMarkers] = useState(false);
+  const [isSearchSelected, setIsSearchSelected] = useState(false);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -180,7 +188,10 @@ export const Map = () => {
 
   // Handle opening the favorite list
   const handleFavoriteList = () => {
-    !isFavoriteListSelected && setIsFavoriteListSelected(true);
+    !isFavoriteListSelected &&
+      !isFavoriteSelected &&
+      !isSearchSelected &&
+      setIsFavoriteListSelected(true);
     followUser && setFollowUser(false);
   };
 
@@ -189,6 +200,13 @@ export const Map = () => {
     setFavoriteContext({ ...favoriteContext, ...item });
     setIsFavoriteSelected(true);
     setIsFavoriteInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
+  };
+
+  const handleOnSearchSelect = (item: MarkerType) => {
+    setSearchContext({ ...searchContext, ...item });
+    setIsSearchSelected(true);
+    setIsSearchInMarkers(!!markersContext?.some((m) => m.id === item.id));
+    followUser && setFollowUser(false);
   };
 
   // Handle manual actions on bottom sheet for markers
@@ -216,6 +234,14 @@ export const Map = () => {
     }
   }, [bottomSheetContext.favoriteSnap]);
 
+  useEffect(() => {
+    if (!bottomSheetContext.searchSnap) {
+      isSearchSelected && setIsSearchSelected(false);
+      !isTrackRouteSelected && searchContext && setSearchContext(null);
+      !followUser && setFollowUser(true);
+    }
+  }, [bottomSheetContext.searchSnap]);
+
   // Handle favoriteContext actions
   useEffect(() => {
     if (favoriteContext) {
@@ -232,6 +258,22 @@ export const Map = () => {
       return;
     }
   }, [favoriteContext]);
+
+  useEffect(() => {
+    if (searchContext) {
+      const { latitude, longitude } = searchContext?.coords;
+      const coords = {
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+      InteractionManager.runAfterInteractions(() =>
+        animateToRegion(coords, 350, _mapRef)
+      );
+      return;
+    }
+  }, [searchContext]);
 
   // Handle trackRouteContext actions if destination is set.
   useEffect(() => {
@@ -261,6 +303,8 @@ export const Map = () => {
     favoriteContext && setFavoriteContext(null);
     isTrackRouteSelected && setIsTrackRouteSelected(false);
     isFavoriteSelected && setIsFavoriteSelected(false);
+    searchContext && setSearchContext(null);
+    isSearchSelected && setIsSearchSelected(false);
     InteractionManager.runAfterInteractions(() =>
       animateToRegion(userLocation, 350, _mapRef)
     );
@@ -278,6 +322,9 @@ export const Map = () => {
         },
       ]}
     >
+      {/* <Test/> */}
+      {/* <SearchBarWithIcon handleOnSearchSelect={handleOnSearchSelect}/> */}
+      <SearchBarFilter handleOnSearchSelect={handleOnSearchSelect} />
       <View style={styles.toolbar}>
         <TouchableOpacity
           style={[styles.toolbarIcon]}
@@ -324,26 +371,30 @@ export const Map = () => {
 
         {/* The Route */}
         {isTrackRouteSelected && <MapViewRoute _mapRef={_mapRef} />}
-
         {/* The Favorite */}
         {!isFavoriteInMarkers && favoriteContext ? <Favorites /> : null}
+        {!isSearchInMarkers && searchContext ? <Search /> : null}
       </MapView>
 
       {/* BottomSheet Markers */}
-      {!isFavoriteListSelected && !isFavoriteSelected && sortedMarkers ? (
+      {!isFavoriteListSelected &&
+      !isFavoriteSelected &&
+      !isSearchSelected &&
+      sortedMarkers ? (
         <BottomSheetMarkers
           _scrollViewRef={_scrollViewRef}
           handleFollowUser={handleFollowUser}
         />
       ) : null}
       {/* BottomSheet Favorite list */}
-      {isFavoriteListSelected ? (
+      {isFavoriteListSelected && !isFavoriteSelected && !isSearchSelected ? (
         <BottomSheetFavoriteList
           handleOnFavoriteSelect={handleOnFavoriteSelect}
         />
       ) : null}
       {/* BottomSheet Favorite */}
       {isFavoriteSelected ? <BottomSheetFavorite /> : null}
+      {isSearchSelected ? <BottomSheetSearch /> : null}
     </View>
   );
 };
