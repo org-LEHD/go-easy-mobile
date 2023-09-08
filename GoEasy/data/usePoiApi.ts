@@ -1,28 +1,28 @@
-export const useMarkerApi = () => {
-  const url = "https://web-go-easy.vercel.app/api/trpc/location.getAll";
-  const fetchInitialMarkers = async () => {
+export const usePoiApi = () => {
+  const url = `https://web-go-easy.vercel.app/api/trpc/attraction.getAll`;
+  const fetchInitialPoi = async () => {
     try {
       const response = await fetch(url);
       const json = await response.json();
       const responseData = json.result?.data?.json || json;
-      const initialMarkers = responseData.map((item: any) => {
+      const initialPoi = responseData.map((item: any) => {
         const {
           id,
           name,
           address,
           description,
-          category,
           summary,
-          phone,
+          category,
           lat,
           long,
-          website,
           thumbnail,
         } = item;
 
         // Translate category in mappings
         const categoryMappings: Record<string, string> = {
-          Museum: "Museum",
+          Church: "Kirke",
+          Theater: "Teater",
+          Cinema: "Biograf",
         };
         // Check if the category value exists in the mapping
         const updatedCategory = categoryMappings[category] || category;
@@ -32,22 +32,19 @@ export const useMarkerApi = () => {
           title: name,
           address,
           category: updatedCategory,
-          phone,
           description,
           summary,
           coords: {
             latitude: lat,
             longitude: long,
           },
-          website,
           thumbnail,
-          distance: 0,
         };
       });
-      return initialMarkers;
+      return initialPoi;
     } catch (error) {
       console.error(error);
     }
   };
-  return { fetchInitialMarkers };
+  return { fetchInitialPoi };
 };

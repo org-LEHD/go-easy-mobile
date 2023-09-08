@@ -9,11 +9,15 @@ import { Web } from "./Icons/web";
 import { Trashcan } from "./Icons/trashcan";
 import { Search } from "./Icons/search";
 import { Close } from "./Icons/close";
+import { ArrowLight } from "./Icons/arrowlight";
+import { Poi } from "./Icons/poi";
+import { Clock } from "./Icons/clock";
 
 export const SVGIcons = {
   Route,
   Star,
   Arrow,
+  ArrowLight,
   Center,
   Heart,
   HeartOutline,
@@ -23,4 +27,6 @@ export const SVGIcons = {
   Trashcan,
   Search,
   Close,
+  Poi,
+  Clock,
 };

@@ -32,7 +32,7 @@ import { MapViewRoute } from "./MapViewRoute";
 import { SearchBarWithIcon } from "./SearchBar";
 import { Search } from "./Search";
 import { BottomSheetSearch } from "./BottomSheet/BottomsheetSearch";
-import { Test } from "./Test";
+import { SearchBarFilter } from "./SearchBarFilter";
 
 export const Map = () => {
   //Safearea for contents on the device
@@ -45,7 +45,7 @@ export const Map = () => {
     trackRouteContext,
     setTrackRouteContext,
     searchContext,
-    setSearchContext
+    setSearchContext,
   } = useContext(MapContext);
 
   //Define useRefs for later use
@@ -71,8 +71,7 @@ export const Map = () => {
   const [isFavoriteSelected, setIsFavoriteSelected] = useState(false);
   const [isTrackRouteSelected, setIsTrackRouteSelected] = useState(false);
   const [isSearchInMarkers, setIsSearchInMarkers] = useState(false);
-  const [isSearchChoosen, setIsSearchChoosen] = useState(false);
-
+  const [isSearchSelected, setIsSearchSelected] = useState(false);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -191,6 +190,7 @@ export const Map = () => {
   const handleFavoriteList = () => {
     !isFavoriteListSelected &&
       !isFavoriteSelected &&
+      !isSearchSelected &&
       setIsFavoriteListSelected(true);
     followUser && setFollowUser(false);
   };
@@ -202,12 +202,12 @@ export const Map = () => {
     setIsFavoriteInMarkers(!!markersContext?.some((m) => m.id === item.id)); // make it a boolean expression
   };
 
-  const handleOnSearchSelect = useCallback((item: MarkerType) => {
+  const handleOnSearchSelect = (item: MarkerType) => {
     setSearchContext({ ...searchContext, ...item });
-    setIsSearchChoosen(true);
+    setIsSearchSelected(true);
     setIsSearchInMarkers(!!markersContext?.some((m) => m.id === item.id));
     followUser && setFollowUser(false);
-  }, [searchContext, markersContext])
+  };
 
   // Handle manual actions on bottom sheet for markers
   useEffect(() => {
@@ -236,7 +236,7 @@ export const Map = () => {
 
   useEffect(() => {
     if (!bottomSheetContext.searchSnap) {
-      isSearchChoosen && setIsSearchChoosen(false);
+      isSearchSelected && setIsSearchSelected(false);
       !isTrackRouteSelected && searchContext && setSearchContext(null);
       !followUser && setFollowUser(true);
     }
@@ -304,7 +304,7 @@ export const Map = () => {
     isTrackRouteSelected && setIsTrackRouteSelected(false);
     isFavoriteSelected && setIsFavoriteSelected(false);
     searchContext && setSearchContext(null);
-    isSearchChoosen && setIsSearchChoosen(false);
+    isSearchSelected && setIsSearchSelected(false);
     InteractionManager.runAfterInteractions(() =>
       animateToRegion(userLocation, 350, _mapRef)
     );
@@ -323,7 +323,8 @@ export const Map = () => {
       ]}
     >
       {/* <Test/> */}
-        <SearchBarWithIcon handleOnSearchSelect={handleOnSearchSelect}/>
+      {/* <SearchBarWithIcon handleOnSearchSelect={handleOnSearchSelect}/> */}
+      <SearchBarFilter handleOnSearchSelect={handleOnSearchSelect} />
       <View style={styles.toolbar}>
         <TouchableOpacity
           style={[styles.toolbarIcon]}
@@ -376,21 +377,24 @@ export const Map = () => {
       </MapView>
 
       {/* BottomSheet Markers */}
-      {!isFavoriteListSelected && !isFavoriteSelected && !isSearchChoosen && sortedMarkers ? (
+      {!isFavoriteListSelected &&
+      !isFavoriteSelected &&
+      !isSearchSelected &&
+      sortedMarkers ? (
         <BottomSheetMarkers
           _scrollViewRef={_scrollViewRef}
           handleFollowUser={handleFollowUser}
         />
       ) : null}
       {/* BottomSheet Favorite list */}
-      {isFavoriteListSelected && !isFavoriteSelected ? (
+      {isFavoriteListSelected && !isFavoriteSelected && !isSearchSelected ? (
         <BottomSheetFavoriteList
           handleOnFavoriteSelect={handleOnFavoriteSelect}
         />
       ) : null}
       {/* BottomSheet Favorite */}
       {isFavoriteSelected ? <BottomSheetFavorite /> : null}
-      {isSearchChoosen ? <BottomSheetSearch /> : null}
+      {isSearchSelected ? <BottomSheetSearch /> : null}
     </View>
   );
 };

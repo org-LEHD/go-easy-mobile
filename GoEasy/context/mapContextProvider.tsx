@@ -49,6 +49,10 @@ const initialState: AppState = {
   setInitialMarkersContext: () => null,
   searchContext: null,
   setSearchContext: () => null,
+  initialPoiContext: null,
+  setInitialPoiContext: () => null,
+  isPoiContext: false,
+  setIsPoiContext: () => null,
 };
 
 // Defines action types that can be dispatched to update the state.
@@ -59,6 +63,8 @@ const actions = {
   SET_TRACKROUTECONTEXT: "SET_TRACKROUTECONTEXT",
   SET_INITIALMARKERSCONTEXT: "SET_INITIALMARKERSCONTEXT",
   SET_SEARCHCONTEXT: "SET_SEARCHCONTEXT",
+  SET_INITIALPOICONTEXT: "SET_INITIALPOICONTEXT",
+  SET_ISPOICONTEXT: "SET_ISPOICONTEXT",
 };
 
 // This is a reducer function that takes the current state and an action as input and returns
@@ -77,6 +83,10 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, initialMarkersContext: action.value };
     case actions.SET_SEARCHCONTEXT:
       return { ...state, searchContext: action.value };
+    case actions.SET_INITIALPOICONTEXT:
+      return { ...state, initialPoiContext: action.value };
+    case actions.SET_ISPOICONTEXT:
+      return { ...state, isPoiContext: action.value };
     default:
       return state;
   }
@@ -155,6 +165,8 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
     trackRouteContext: state.trackRouteContext,
     initialMarkersContext: state.initialMarkersContext,
     searchContext: state.searchContext,
+    initialPoiContext: state.initialPoiContext,
+    isPoiContext: state.isPoiContext,
     setMarkersContext: (value: AppState) => {
       dispatch({ type: actions.SET_MARKERSCONTEXT, value });
     },
@@ -172,6 +184,12 @@ export function MapContextProvider({ children }: MapContextProviderProps) {
     },
     setSearchContext: (value: AppState) => {
       dispatch({ type: actions.SET_SEARCHCONTEXT, value });
+    },
+    setInitialPoiContext: (value: AppState) => {
+      dispatch({ type: actions.SET_INITIALPOICONTEXT, value });
+    },
+    setIsPoiContext: (value: AppState) => {
+      dispatch({ type: actions.SET_ISPOICONTEXT, value });
     },
   };
 

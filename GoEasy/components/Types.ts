@@ -36,6 +36,15 @@ export interface AddType {
   media: string;
   title: string;
 }
+export interface PoiType {
+  id: number;
+  coords: Coords;
+  title: string;
+  category: string;
+  thumbnail: string;
+  address: string;
+  description: string;
+}
 
 export interface BottomSheetType {
   markerSnap: boolean;
@@ -44,6 +53,8 @@ export interface BottomSheetType {
   searchSnap: boolean;
 }
 export interface AppState {
+  initialMarkersContext: MarkerType[] | null;
+  setInitialMarkersContext: any;
   markersContext: MarkerType[] | null;
   setMarkersContext: any;
   bottomSheetContext: BottomSheetType;
@@ -54,8 +65,10 @@ export interface AppState {
   setSearchContext: any;
   trackRouteContext: any;
   setTrackRouteContext: any;
-  initialMarkersContext: MarkerType[] | null;
-  setInitialMarkersContext: any;
+  initialPoiContext: MarkerType | null;
+  setInitialPoiContext: any;
+  isPoiContext: boolean;
+  setIsPoiContext: any;
 }
 
 export interface Action {
