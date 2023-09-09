@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { useRouter } from "expo-router";
 import React, {
   useEffect,
   useRef,
@@ -20,8 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
 import { BottomSheetMarkers } from "./BottomSheet/BottomSheetMarkers";
-import { CARD_WIDTH, HEIGHT } from "../constants/constants";
-import { MapContext, AnimationContext } from "../context/mapContextProvider";
+import { AnimationContext, MapContext } from "../context/mapContextProvider";
 import { Markers } from "./Markers";
 import { Coords, MarkerType } from "./Types";
 import { animateToRegion } from "../Utils/utils";
@@ -29,7 +27,6 @@ import { BottomSheetFavoriteList } from "./BottomSheet/BottomsheetFavoriteList";
 import { Favorites } from "./Favorites";
 import { BottomSheetFavorite } from "./BottomSheet/BottomsheetFavorite";
 import { MapViewRoute } from "./MapViewRoute";
-import { SearchBarWithIcon } from "./SearchBar";
 import { Search } from "./Search";
 import { BottomSheetSearch } from "./BottomSheet/BottomsheetSearch";
 import { SearchBarFilter } from "./SearchBarFilter";
@@ -48,6 +45,8 @@ export const Map = () => {
     setSearchContext,
   } = useContext(MapContext);
 
+  const mapAnimation = useContext(AnimationContext);
+
   //Define useRefs for later use
   const _mapRef = useRef<MapView | null>(null);
   const _scrollViewRef = useRef<ScrollView | null>(null);
@@ -65,13 +64,19 @@ export const Map = () => {
     latitude: null,
     longitude: null,
   });
-  const [sortedMarkers, setSortedMarkers] = useState<any>(markersContext);
-  const [isFavoriteInMarkers, setIsFavoriteInMarkers] = useState(false);
-  const [isFavoriteListSelected, setIsFavoriteListSelected] = useState(false);
-  const [isFavoriteSelected, setIsFavoriteSelected] = useState(false);
-  const [isTrackRouteSelected, setIsTrackRouteSelected] = useState(false);
-  const [isSearchInMarkers, setIsSearchInMarkers] = useState(false);
-  const [isSearchSelected, setIsSearchSelected] = useState(false);
+  const [sortedMarkers, setSortedMarkers] = useState<MarkerType[] | null>(
+    markersContext
+  );
+  const [isFavoriteInMarkers, setIsFavoriteInMarkers] =
+    useState<boolean>(false);
+  const [isFavoriteListSelected, setIsFavoriteListSelected] =
+    useState<boolean>(false);
+  const [isFavoriteSelected, setIsFavoriteSelected] = useState<boolean>(false);
+  const [isTrackRouteSelected, setIsTrackRouteSelected] =
+    useState<boolean>(false);
+  const [isSearchInMarkers, setIsSearchInMarkers] = useState<boolean>(false);
+  const [isSearchSelected, setIsSearchSelected] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   //Defining a state variable inner city copenhagen as fallback
   const [initialRegion, setInitialRegion] = useState({
@@ -118,36 +123,40 @@ export const Map = () => {
     );
   }, [initialRegion]);
 
-  const onUserLocationChange = useCallback((e: any) => {
-    if (!followUser) return;
-    const { latitude, longitude } = e.nativeEvent.coordinate;
-    //The property onUserLocationChange will keep update with coords
-    //even when coords haven't changed. For this not to be to expencive we only need
-    //to update users location when moving device.
-    if (
-      latitude !== _previousUserLocation.current.latitude ||
-      longitude !== _previousUserLocation.current.longitude
-    ) {
-      //Debounce will reduce result to only recent updates ensuring a pause where we can execute other commands
-      //in this case we wan't to pan and stop the updates and animations caused of this.
-      if (_debounceRef.current !== null) {
-        clearTimeout(_debounceRef.current);
-      }
-      _debounceRef.current = setTimeout(() => {
-        console.log("updates location");
-        setUserLocation({
-          ...userLocation,
-          latitude: latitude,
-          longitude: longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        });
-      }, 800);
-    }
+  const onUserLocationChange = useCallback(
+    (e: any) => {
+      if (!followUser) return;
+      const { latitude, longitude } = e.nativeEvent.coordinate;
 
-    //Save the state for later use
-    _previousUserLocation.current = { latitude, longitude };
-  }, []);
+      //The property onUserLocationChange will keep update with coords
+      //even when coords haven't changed. For this not to be to expencive we only need
+      //to update users location when moving device.
+      if (
+        latitude !== _previousUserLocation.current.latitude ||
+        longitude !== _previousUserLocation.current.longitude
+      ) {
+        //Debounce will reduce result to only recent updates ensuring a pause where we can execute other commands
+        //in this case we wan't to pan and stop the updates and animations caused of this.
+        if (_debounceRef.current !== null) {
+          clearTimeout(_debounceRef.current);
+        }
+        _debounceRef.current = setTimeout(() => {
+          console.log("updates location");
+          setUserLocation({
+            ...userLocation,
+            latitude: latitude,
+            longitude: longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+        }, 800);
+      }
+
+      //Save the state for later use
+      _previousUserLocation.current = { latitude, longitude };
+    },
+    [followUser]
+  );
 
   useEffect(() => {
     //cancelAnimationFrame is a function provided by the browser's JavaScript environment,
@@ -157,6 +166,7 @@ export const Map = () => {
       cancelAnimationFrame(animationRef.current);
     }
     if (followUser === false) return;
+
     const { latitude, longitude } = userLocation;
     if (latitude && longitude) {
       animationRef.current = requestAnimationFrame(() => {
@@ -166,6 +176,10 @@ export const Map = () => {
       });
     }
   }, [userLocation, followUser]);
+
+  useEffect(() => {
+    setFollowUser(true);
+  }, [mapAnimation]);
 
   useEffect(() => {
     // On the first update (initial render), disregard.
@@ -322,8 +336,6 @@ export const Map = () => {
         },
       ]}
     >
-      {/* <Test/> */}
-      {/* <SearchBarWithIcon handleOnSearchSelect={handleOnSearchSelect}/> */}
       <SearchBarFilter handleOnSearchSelect={handleOnSearchSelect} />
       <View style={styles.toolbar}>
         <TouchableOpacity
@@ -338,6 +350,7 @@ export const Map = () => {
         >
           <SVGIcons.Heart />
         </TouchableOpacity>
+
         {isTrackRouteSelected ? (
           <TouchableOpacity
             style={[styles.toolbarIcon, styles.route]}
@@ -347,6 +360,7 @@ export const Map = () => {
           </TouchableOpacity>
         ) : null}
       </View>
+
       <MapView
         ref={_mapRef}
         style={styles.map}

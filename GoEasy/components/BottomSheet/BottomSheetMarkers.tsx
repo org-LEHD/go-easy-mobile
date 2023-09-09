@@ -21,7 +21,10 @@ import { BottomSheetMarkerMeta } from "./BottomsheetMarkerMeta";
 import { BottomSheetMarkerDesc } from "./BottomsheetMarkerDesc";
 import { MarkerType } from "../Types";
 
-export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
+export const BottomSheetMarkers = ({
+  _scrollViewRef,
+  handleFollowUser,
+}: any) => {
   //todo types
   const { markersContext, bottomSheetContext, setBottomSheetContext } =
     useContext(MapContext);
@@ -31,7 +34,6 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
 
   // useRefs
   const _sheetRef = useRef<BottomSheet>(null);
-  const _debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (_scrollViewRef.current) {
@@ -39,6 +41,15 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
       _scrollViewRef.current.scrollTo({ x: x, y: 0, animated: true });
     }
   }, []);
+
+  // This effect runs when _scrollViewRef.current becomes available (not null/undefined).
+  // It forces the state to be true on the first render.
+  // This behavior is related to the mapAnimation event listener in another component.
+  useEffect(() => {
+    if (_scrollViewRef.current) {
+      handleFollowUser(true); // Set to true on the first render when _scrollViewRef.current becomes available
+    }
+  }, [_scrollViewRef.current]);
 
   //open or closed state for the bottomsheet
   useEffect(() => {
@@ -49,8 +60,6 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
       _sheetRef.current.close();
       return;
     }
-    //setSnapIndex(0);
-
     return () => {
       if (_scrollViewRef.current && markersContext.length === 1) {
         _scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: false }); // Reset scroll position
@@ -71,7 +80,7 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
         return;
       }
       setBottomSheetContext({ ...bottomSheetContext, markerSnap: false });
-      console.log(snap);
+      console.log("here", snap);
     },
     [snapIndex]
   );

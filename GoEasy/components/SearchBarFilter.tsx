@@ -1,107 +1,93 @@
-// Searching using Search Bar Filter in React Native List View
-// https://aboutreact.com/react-native-search-bar-filter-on-listview/
-
-// import React in our code
-import React, { useState, useEffect, useContext } from "react";
-
-// import all the components we are going to use
 import {
-  SafeAreaView,
-  Text,
-  StyleSheet,
   View,
-  FlatList,
+  Text,
+  TextInput,
+  StyleSheet,
   TouchableOpacity,
   Keyboard,
 } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { FlatList } from "react-native";
+import { usePoiApi } from "../data/usePoiApi";
+import { initialMarkers } from "../data/apiMarkersMock";
+import { MarkerType } from "./Types";
+import { MapContext } from "../context/mapContextProvider";
 import { IconProps, SearchBar } from "react-native-elements";
 import { SearchBarBaseProps } from "react-native-elements/dist/searchbar/SearchBar";
 import { SVGIcons } from "./SVG-Icons/Svg";
-import { MapContext } from "../context/mapContextProvider";
-import { MarkerType, PoiType } from "./Types";
-import { usePoiApi } from "../data/usePoiApi";
 
 const SafeSearchBar = SearchBar as unknown as React.FC<SearchBarBaseProps>;
-
 export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
   const { fetchInitialPoi } = usePoiApi();
   const { initialMarkersContext, isPoiContext, setIsPoiContext } =
     useContext(MapContext);
-
-  const [poi, setPoi] = useState<PoiType[] | null>(null);
-  const [isPoi, setIsPoi] = useState<boolean>(false);
+  const [poiMainSource, setPoiMainSource] = useState<MarkerType[]>([]);
   const [isSearch, setIsSearch] = useState<boolean>(false);
-  const [search, setSearch] = useState<string>("");
-  const [filteredMarkersSource, setFilteredDataSource] = useState<MarkerType[]>(
-    initialMarkersContext as MarkerType[]
-  );
-  const [filteredPoiSource, setFilteredPoiSource] = useState<MarkerType[]>([]);
+  const [isPoi, setIsPoi] = useState<boolean>(false);
+  const [searchResults, setSearchResults] = useState<MarkerType[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  //call api to get the initial Poi
   useEffect(() => {
+    setIsLoading(true);
+    // Fetch data from mockedApi.io
     const fetchData = async () => {
       try {
-        const initialPoi = await fetchInitialPoi();
-        setPoi(initialPoi);
+        const response = await fetchInitialPoi();
+        setPoiMainSource(response);
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchData();
   }, []);
 
-  //Set state to show a list
   useEffect(() => {
-    setFilteredPoiSource(poi as MarkerType[]);
-  }, [poi]);
+    if (searchTerm.length <= 0) {
+      setSearchResults([]);
+      setIsSearch(false);
+    } else {
+      setIsSearch(true);
+      // Filter poi based on search term
+      const results = initialMarkersContext?.filter((item: MarkerType) =>
+        item.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSearchResults(results as MarkerType[]);
+    }
+  }, [searchTerm, initialMarkersContext]);
+
+  useEffect(() => {
+    setIsSearch(false);
+    if (searchTerm.length >= 1 && !isPoi) {
+      setIsSearch(true);
+    }
+    if (isPoi) {
+      // Filter poi based on search term
+      const results = poiMainSource.filter((item: any) =>
+        item.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSearchResults(results as MarkerType[]);
+    }
+  }, [searchTerm, isPoi]);
 
   useEffect(() => {
     isPoi && setIsPoiContext(true);
     isSearch && setIsPoiContext(false);
   }, [isPoi, isSearch]);
 
-  //Is activated when typing in searchfield starts
-  const searchFilterFunction = (text: string) => {
-    setIsSearch(false);
-    if (text.length >= 1 && !isPoi) {
-      setIsSearch(true);
-    }
-    if (text && isPoi) {
-      const newData = filteredPoiSource?.filter(function (item: any) {
-        const itemData = item.title
-          ? item.title.toLowerCase()
-          : "".toLowerCase();
-        const textData = text.toLowerCase();
-        return itemData.includes(textData);
-      });
+  const handleEndSearch = () => {
+    isPoi && setIsPoi(false);
+    isSearch && setIsSearch(false);
+    Keyboard.dismiss();
+    setSearchResults([]);
+    setSearchTerm("");
+  };
 
-      newData && setFilteredPoiSource(newData as MarkerType[]);
-      setSearch(text);
-    } else {
-      const newData = initialMarkersContext?.filter(function (
-        item: MarkerType
-      ) {
-        const itemTitle = item.title
-          ? item.title.toLowerCase()
-          : "".toLowerCase();
-        const itemCategory = item.category
-          ? item.category.toLowerCase()
-          : "".toLowerCase();
-
-        const textData = text.toLowerCase();
-
-        const matchesTitle = itemTitle.includes(textData);
-        const matchesCategory = itemCategory.includes(textData);
-
-        return matchesTitle || matchesCategory;
-      });
-
-      newData && setFilteredDataSource(newData);
-      setSearch(text);
-    }
-    if (!text) {
-      Keyboard.dismiss(); // Dismiss the keyboard only if there is no text
-    }
+  const getItem = (item: any) => {
+    handleOnSearchSelect(item);
+    handleEndSearch();
   };
 
   const ItemView = ({ item }: any) => {
@@ -111,8 +97,11 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
       <View style={styles.container}>
         <TouchableOpacity style={styles.row} onPress={() => getItem(item)}>
           <View style={styles.screenIcon}>
-            {isPoi && <SVGIcons.Poi color={"#888888"} />}
-            {isSearch && <SVGIcons.Clock color={"#888888"} scale={1.2} />}
+            {isPoiContext ? (
+              <SVGIcons.Poi color={"#888888"} />
+            ) : (
+              <SVGIcons.Clock color={"#888888"} scale={1.2} />
+            )}
           </View>
           <View style={styles.textContent}>
             <Text style={styles.title}>{item?.title}</Text>
@@ -140,34 +129,15 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
     );
   };
 
-  const getItem = (item: any) => {
-    handleOnSearchSelect(item);
-    handleEndSearch();
-  };
-
-  const handleEndSearch = () => {
-    isPoi && setIsPoi(false);
-    isSearch && setIsSearch(false);
-    searchFilterFunction("");
-    setSearch("");
-    Keyboard.dismiss();
-  };
-
-  const dataSource = isPoi
-    ? filteredPoiSource
-    : isSearch
-    ? filteredMarkersSource
-    : [];
-
   return (
     <>
       <View style={styles.searchbar}>
         <SafeSearchBar
           leftIconContainerStyle={{ display: "none" }}
-          onChangeText={(text: string) => searchFilterFunction(text)}
-          onClear={() => searchFilterFunction("")}
+          onChangeText={(text: string) => setSearchTerm(text)}
+          onClear={() => setSearchTerm("")}
           placeholder="Søgning..."
-          value={search}
+          value={searchTerm}
           platform={"default"}
           containerStyle={{
             flex: 1,
@@ -185,12 +155,12 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
             {
               size: 24,
               color: "#AAAAAA",
-              style: { display: search ? "flex" : "none" },
+              style: { display: searchTerm ? "flex" : "none" },
             } as IconProps
           }
         />
         <View style={styles.leftContainer}>
-          {isPoi || isSearch ? (
+          {isPoi || searchTerm ? (
             <TouchableOpacity onPress={() => handleEndSearch()}>
               <SVGIcons.ArrowLight />
             </TouchableOpacity>
@@ -208,11 +178,11 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
           </View>
         ) : null}
       </View>
-      {isPoi || isSearch ? (
+      {isPoi || searchTerm ? (
         <View style={styles.flatlist}>
-          {dataSource.length ? (
+          {searchResults.length ? (
             <FlatList
-              data={dataSource}
+              data={searchResults}
               keyExtractor={(item, index) => index.toString()}
               ItemSeparatorComponent={ItemSeparatorView}
               renderItem={ItemView}

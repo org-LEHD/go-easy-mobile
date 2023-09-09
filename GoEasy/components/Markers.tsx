@@ -66,8 +66,8 @@ export const Markers: FC<MarkersProps> = ({
   }, [filteredMarkers]);
 
   useEffect(() => {
-    if (!markersContext) return;
     mapAnimation?.addListener(({ value }: any) => {
+      if (!markersContext) return;
       //Create index from x coordinate we get from gesture
       let index = Math.floor(value / CARD_WIDTH + 0.3);
       //Exclude numbers below 0 and the total size of the array
@@ -77,16 +77,18 @@ export const Markers: FC<MarkersProps> = ({
         _mapIndex.current = index;
         //Get the coords from array
         const { coords } = markersContext[index] || {};
+
         const newCoords = {
           ...coords,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         };
-        InteractionManager.runAfterInteractions(() =>
-          animateToRegion(newCoords, 350, _mapRef)
-        );
-
-        handleFollowUser(false);
+        if (coords !== undefined) {
+          InteractionManager.runAfterInteractions(() =>
+            animateToRegion(newCoords, 350, _mapRef)
+          );
+        }
+        handleFollowUser(true);
       }
     });
     //Cleanup function. This will ensure that markers don't hold a reference to the initial state and uses the updated state.
@@ -110,6 +112,7 @@ export const Markers: FC<MarkersProps> = ({
   });
 
   const handleOnMarkerPress = (index: number) => {
+    console.log(markersContext?.length);
     let x = index * CARD_WIDTH + index * 20;
     _scrollViewRef.current?.scrollTo({ x: x, y: 0, animated: true });
     handleFollowUser(false);
