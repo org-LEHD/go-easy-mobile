@@ -176,8 +176,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
   },
   marker: {
     width: 30,
