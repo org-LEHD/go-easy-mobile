@@ -1,11 +1,11 @@
-import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import {
   StyleSheet,
   View,
-  Text,
   InteractionManager,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from "react-native";
 import React, {
   useEffect,
@@ -34,6 +34,9 @@ import { SearchBarFilter } from "./SearchBarFilter";
 export const Map = () => {
   //Safearea for contents on the device
   const insets = useSafeAreaInsets();
+  const topInset = Platform.OS === "ios" ? insets.top : 45;
+  const shadowStyle =
+    Platform.OS === "ios" ? styles.shadowIos : styles.shadowAndroid;
   const {
     markersContext,
     bottomSheetContext,
@@ -125,7 +128,7 @@ export const Map = () => {
 
   const onUserLocationChange = useCallback(
     (e: any) => {
-      if (!followUser) return;
+      if (followUser === false) return;
       const { latitude, longitude } = e.nativeEvent.coordinate;
 
       //The property onUserLocationChange will keep update with coords
@@ -176,10 +179,6 @@ export const Map = () => {
       });
     }
   }, [userLocation, followUser]);
-
-  useEffect(() => {
-    setFollowUser(true);
-  }, [mapAnimation]);
 
   useEffect(() => {
     // On the first update (initial render), disregard.
@@ -324,12 +323,23 @@ export const Map = () => {
     );
   };
 
+  const mapStyle = [
+    {
+      featureType: "poi.business",
+      stylers: [
+        {
+          visibility: "off",
+        },
+      ],
+    },
+  ];
+
   return (
     <View
       style={[
         styles.container,
         {
-          paddingTop: insets.top,
+          paddingTop: topInset,
           paddingBottom: insets.bottom,
           paddingLeft: insets.left + 20,
           paddingRight: insets.right + 20,
@@ -339,13 +349,13 @@ export const Map = () => {
       <SearchBarFilter handleOnSearchSelect={handleOnSearchSelect} />
       <View style={styles.toolbar}>
         <TouchableOpacity
-          style={[styles.toolbarIcon]}
+          style={[styles.toolbarIcon, shadowStyle]}
           onPress={handleFollowUser}
         >
           <SVGIcons.Center color={!followUser ? "#666" : null} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.toolbarIcon]}
+          style={[styles.toolbarIcon, shadowStyle]}
           onPress={handleFavoriteList}
         >
           <SVGIcons.Heart />
@@ -353,7 +363,7 @@ export const Map = () => {
 
         {isTrackRouteSelected ? (
           <TouchableOpacity
-            style={[styles.toolbarIcon, styles.route]}
+            style={[styles.toolbarIcon, styles.route, shadowStyle]}
             onPress={handleResetTrackRoute}
           >
             <SVGIcons.Route />
@@ -371,12 +381,13 @@ export const Map = () => {
         showsMyLocationButton={false}
         onPanDrag={onPanDrag}
         mapType={"standard"}
+        customMapStyle={mapStyle}
       >
         {/* We check if any of the properties values in userLocation is null */}
         {Object.values(userLocation)?.some((m) => m !== null) ? (
           <Markers
             userLocation={userLocation}
-            radius={300}
+            radius={100}
             _mapRef={_mapRef}
             _scrollViewRef={_scrollViewRef}
             handleFollowUser={handleFollowUser}
@@ -456,5 +467,18 @@ const styles = StyleSheet.create({
   },
   route: {
     backgroundColor: "#0064fe",
+  },
+  shadowIos: {
+    shadowColor: "rgba(0, 0, 0, 0.3)",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+  },
+  shadowAndroid: {
+    elevation: 20,
+    shadowColor: "#000",
   },
 });

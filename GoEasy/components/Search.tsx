@@ -7,26 +7,14 @@ import { MarkerType } from "./Types";
 export const Search = () => {
   const { searchContext, isPoiContext } = useContext(MapContext);
   const { coords, category } = searchContext as MarkerType;
-
-  const categoryMappings: Record<string, any> = {
-    Kirke: require("../assets/images/icon_church.png"),
-    Teater: require("../assets/images/icon_theater.png"),
-    Restaurant: require("../assets/images/icon_restaurant.png"),
-    Park: require("../assets/images/icon_park.png"),
-  };
-
-  const mappedCategory =
-    categoryMappings[category] || require("../assets/images/icon_default.png");
-
-  const updatedCategory = isPoiContext
-    ? mappedCategory
-    : require("../assets/map_search.png");
-
+  const url =
+    (category as any).url ?? require("../assets/images/map_search.png");
+  console.log(category);
   return (
     <Marker coordinate={coords as LatLng}>
       <Animated.View style={[styles.markerWrap]}>
         <Animated.Image
-          source={updatedCategory}
+          source={url}
           style={[isPoiContext ? styles.poi : styles.marker]}
           resizeMode="cover"
         />

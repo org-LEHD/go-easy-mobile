@@ -11,6 +11,8 @@ import {
   InteractionManager,
   ScrollView,
   StyleSheet,
+  View,
+  Text,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { MapContext, AnimationContext } from "../context/mapContextProvider";
@@ -46,18 +48,20 @@ export const Markers: FC<MarkersProps> = ({
   //useRefs
   let _mapIndex = useRef<any>(null);
   const filteredMarkers = useMemo(() => {
-    const addDistanceToMarkers = initialMarkersContext?.map((marker: any) => {
-      const { latitude, longitude } = userLocation;
-      const coords = {
-        location: { latitude, longitude },
-        distination: { ...marker.coords },
-      };
-      const meters = useDistancePrecise(coords);
-      return { ...marker, ...{ distance: meters } };
-    });
+    const addDistanceToMarkers = initialMarkersContext?.map(
+      (marker: MarkerType) => {
+        const { latitude, longitude } = userLocation;
+        const coords = {
+          location: { latitude, longitude },
+          distination: { ...marker.coords },
+        };
+        const meters = useDistancePrecise(coords);
+        return { ...marker, ...{ distance: meters } };
+      }
+    );
 
     return addDistanceToMarkers
-      ?.filter((marker: any) => marker.distance <= radius)
+      ?.filter((marker: MarkerType) => marker.distance <= radius)
       .sort((a: any, b: any) => a.distance - b.distance);
   }, [userLocation]);
 
@@ -88,7 +92,7 @@ export const Markers: FC<MarkersProps> = ({
             animateToRegion(newCoords, 350, _mapRef)
           );
         }
-        handleFollowUser(true);
+        handleFollowUser(false);
       }
     });
     //Cleanup function. This will ensure that markers don't hold a reference to the initial state and uses the updated state.
@@ -97,19 +101,21 @@ export const Markers: FC<MarkersProps> = ({
     };
   }, [markersContext]);
 
-  const interpolations = filteredMarkers?.map((_: undefined, index: number) => {
-    const inputRange = [
-      (index - 1) * CARD_WIDTH,
-      index * CARD_WIDTH,
-      (index + 1) * CARD_WIDTH,
-    ];
-    const scale = mapAnimation?.interpolate({
-      inputRange,
-      outputRange: [1, 1.5, 1],
-      extrapolate: "clamp",
-    });
-    return { scale };
-  });
+  const interpolations = filteredMarkers?.map(
+    (_: MarkerType, index: number) => {
+      const inputRange = [
+        (index - 1) * CARD_WIDTH,
+        index * CARD_WIDTH,
+        (index + 1) * CARD_WIDTH,
+      ];
+      const scale = mapAnimation?.interpolate({
+        inputRange,
+        outputRange: [1.2, 1.7, 1.2],
+        extrapolate: "clamp",
+      });
+      return { scale };
+    }
+  );
 
   const handleOnMarkerPress = (index: number) => {
     console.log(markersContext?.length);
@@ -135,14 +141,14 @@ export const Markers: FC<MarkersProps> = ({
         // Use a switch statement to determine the marker image source
         switch (true) {
           case isFavorite:
-            markerImageSource = require("../assets/map_favorite.png");
+            markerImageSource = require("../assets/images/map_favorite.png");
             break;
           case isSearch:
-            markerImageSource = require("../assets/map_search.png");
+            markerImageSource = require("../assets/images/map_search.png");
             break;
           default:
             // Determine the marker image source based on conditions
-            markerImageSource = require("../assets/map_marker.png");
+            markerImageSource = require("../assets/images/map_marker.png");
             break;
         }
         return (
@@ -170,8 +176,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
   },
   marker: {
     width: 30,

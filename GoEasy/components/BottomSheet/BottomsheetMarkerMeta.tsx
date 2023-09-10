@@ -19,11 +19,12 @@ interface MarkerProps {
 export const BottomSheetMarkerMeta = ({ marker }: MarkerProps) => {
   const { isPoiContext } = useContext(MapContext);
   const router = useRouter();
+  const categoryName = (marker.category as any).name ?? marker.category;
   return (
     <>
       <View style={styles.row}>
         <View style={styles.leftCol}>
-          <Text style={styles.category}>{marker.category}</Text>
+          <Text style={styles.category}>{categoryName}</Text>
           <Review />
         </View>
         <View style={styles.rightCol}>

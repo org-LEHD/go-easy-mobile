@@ -5,11 +5,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   Keyboard,
+  Platform,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { FlatList } from "react-native";
 import { usePoiApi } from "../data/usePoiApi";
-import { initialMarkers } from "../data/apiMarkersMock";
 import { MarkerType } from "./Types";
 import { MapContext } from "../context/mapContextProvider";
 import { IconProps, SearchBar } from "react-native-elements";
@@ -18,6 +18,8 @@ import { SVGIcons } from "./SVG-Icons/Svg";
 
 const SafeSearchBar = SearchBar as unknown as React.FC<SearchBarBaseProps>;
 export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
+  const shadowStyle =
+    Platform.OS === "ios" ? styles.shadowIos : styles.shadowAndroid;
   const { fetchInitialPoi } = usePoiApi();
   const { initialMarkersContext, isPoiContext, setIsPoiContext } =
     useContext(MapContext);
@@ -131,7 +133,7 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
 
   return (
     <>
-      <View style={styles.searchbar}>
+      <View style={[styles.searchbar, shadowStyle]}>
         <SafeSearchBar
           leftIconContainerStyle={{ display: "none" }}
           onChangeText={(text: string) => setSearchTerm(text)}
@@ -171,7 +173,7 @@ export const SearchBarFilter = ({ handleOnSearchSelect }: any) => {
           )}
         </View>
         {!isSearch ? (
-          <View style={styles.rightContainer}>
+          <View style={[styles.rightContainer, shadowStyle]}>
             <TouchableOpacity onPress={() => setIsPoi(true)}>
               <SVGIcons.Poi />
             </TouchableOpacity>
@@ -213,13 +215,6 @@ const styles = StyleSheet.create({
     borderColor: "#CDD4D9",
     borderWidth: 1,
     borderRadius: 6,
-    shadowColor: "rgba(0, 0, 0, 0.3)",
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 3,
     zIndex: 3,
     marginTop: "5%",
   },
@@ -246,14 +241,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#0064fe",
     borderTopStartRadius: 0,
     borderBottomStartRadius: 0,
-    shadowColor: "rgba(0, 0, 0, 0.3)",
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 3,
   },
+
   rightIcon: {
     flex: 0,
     alignItems: "center",
@@ -263,7 +252,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderTopStartRadius: 0,
     borderBottomStartRadius: 0,
-
+  },
+  shadowIos: {
     shadowColor: "rgba(0, 0, 0, 0.3)",
     shadowOffset: {
       width: 0,
@@ -271,6 +261,10 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.5,
     shadowRadius: 3,
+  },
+  shadowAndroid: {
+    elevation: 20,
+    shadowColor: "#000",
   },
   flatlist: {
     flex: 1,

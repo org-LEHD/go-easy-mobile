@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    marginHorizontal: WIDTH * 0.02,
+    marginHorizontal: WIDTH * 0.025,
     alignItems: "center",
     height: FLEX_HEIGHT ? CARD_HEIGHT * 0.5 : CARD_HEIGHT * 0.45,
     backgroundColor: "transparent",

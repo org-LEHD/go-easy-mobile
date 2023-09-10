@@ -12,7 +12,7 @@ export const Favorites = () => {
     <Marker coordinate={coords as LatLng}>
       <Animated.View style={[styles.markerWrap]}>
         <Animated.Image
-          source={require("../assets/map_favorite.png")}
+          source={require("../assets/images/map_favorite.png")}
           style={[styles.marker]}
           resizeMode="cover"
         />

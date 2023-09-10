@@ -19,13 +19,38 @@ export const usePoiApi = () => {
         } = item;
 
         // Translate category in mappings
-        const categoryMappings: Record<string, string> = {
-          Church: "Kirke",
-          Theater: "Teater",
-          Cinema: "Biograf",
+        const categoryMappings: Record<string, string | any> = {
+          Park: {
+            name: "Park",
+            url: require("../assets/images/icon_park.png"),
+          },
+          Church: {
+            name: "Kirke",
+            url: require("../assets/images/icon_church.png"),
+          },
+          Theater: {
+            name: "Teater",
+            url: require("../assets/images/icon_theater.png"),
+          },
+          Cinema: {
+            name: "Biograf",
+            url: require("../assets/images/icon_cinema.png"),
+          },
+          Castle: {
+            name: "Slot",
+            url: require("../assets/images/icon_castle.png"),
+          },
+          // Attraction: {
+          //   name: "Seværdighed",
+          //   url: require("../assets/images/icon_default.png"),
+          // },
         };
         // Check if the category value exists in the mapping
-        const updatedCategory = categoryMappings[category] || category;
+        //const updatedCategory = categoryMappings[category] || category;
+        const updatedCategory = categoryMappings[category] ?? {
+          name: [category],
+          url: require("../assets/images/icon_default.png"),
+        };
 
         return {
           id,
