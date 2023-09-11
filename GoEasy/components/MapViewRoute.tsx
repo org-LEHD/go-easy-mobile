@@ -30,6 +30,7 @@ export const MapViewRoute = ({ _mapRef }: MapViewRouteProps) => {
       origin={trackRouteContext?.origin}
       destination={trackRouteContext?.destination}
       apikey={GOOGLE_MAPS_APIKEY}
+      mode="WALKING"
       strokeWidth={5}
       strokeColor="blue"
       onReady={mapViewDirectionsOnReady}
