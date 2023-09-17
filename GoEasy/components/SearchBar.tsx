@@ -27,7 +27,6 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect }: any) => {
   // }
 
   useEffect(() => {
-    console.log("Test");
     if (searchQuery.length > 2) {
       setSearchFieldSelected(true);
     } else {
@@ -43,7 +42,6 @@ export const SearchBarWithIcon = ({ handleOnSearchSelect }: any) => {
   });
 
   const handleButtonPress = (marker: MarkerType) => {
-    console.log(marker.id);
     setSearchFieldSelected(false);
     Keyboard.dismiss();
     setSearchQuery("");

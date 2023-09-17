@@ -22,7 +22,6 @@ import { BottomSheetMarkerDesc } from "./BottomsheetMarkerDesc";
 import { MarkerType } from "../Types";
 
 export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
-  //todo types
   const { markersContext, bottomSheetContext, setBottomSheetContext } =
     useContext(MapContext);
   const mapAnimation = useContext(AnimationContext);
@@ -49,7 +48,6 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
       _sheetRef.current.close();
       return;
     }
-    //setSnapIndex(0);
 
     return () => {
       if (_scrollViewRef.current && markersContext.length === 1) {
@@ -71,7 +69,6 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
         return;
       }
       setBottomSheetContext({ ...bottomSheetContext, markerSnap: false });
-      console.log(snap);
     },
     [snapIndex]
   );
@@ -104,7 +101,6 @@ export const BottomSheetMarkers = ({ _scrollViewRef }: any) => {
           right: CARD_WIDTH * 0.0085,
         }}
         onScroll={
-          // _scrollViewRef.current && // On mount onScroll triggers unnessary animation event
           Animated.event(
             [
               {

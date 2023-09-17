@@ -1,13 +1,11 @@
-import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import {
   StyleSheet,
   View,
-  Text,
   InteractionManager,
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { useRouter } from "expo-router";
 import React, {
   useEffect,
   useRef,
@@ -20,8 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePermission } from "../hooks/usePermission";
 import { SVGIcons } from "./SVG-Icons/Svg";
 import { BottomSheetMarkers } from "./BottomSheet/BottomSheetMarkers";
-import { CARD_WIDTH, HEIGHT } from "../constants/constants";
-import { MapContext, AnimationContext } from "../context/mapContextProvider";
+import { MapContext } from "../context/mapContextProvider";
 import { Markers } from "./Markers";
 import { Coords, MarkerType } from "./Types";
 import { animateToRegion } from "../Utils/utils";
@@ -29,7 +26,6 @@ import { BottomSheetFavoriteList } from "./BottomSheet/BottomsheetFavoriteList";
 import { Favorites } from "./Favorites";
 import { BottomSheetFavorite } from "./BottomSheet/BottomsheetFavorite";
 import { MapViewRoute } from "./MapViewRoute";
-import { SearchBarWithIcon } from "./SearchBar";
 import { Search } from "./Search";
 import { BottomSheetSearch } from "./BottomSheet/BottomsheetSearch";
 import { SearchBarFilter } from "./SearchBarFilter";
@@ -134,7 +130,6 @@ export const Map = () => {
         clearTimeout(_debounceRef.current);
       }
       _debounceRef.current = setTimeout(() => {
-        console.log("updates location");
         setUserLocation({
           ...userLocation,
           latitude: latitude,

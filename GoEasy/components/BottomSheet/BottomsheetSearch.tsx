@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { CARD_WIDTH, SPACING } from "../../constants/constants";
 import { MapContext } from "../../context/mapContextProvider";
 

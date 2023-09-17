@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Tabs } from "expo-router";
 import { MapContext } from "../../context/mapContextProvider";
 import { useSearchParams } from "expo-router";
@@ -21,14 +21,12 @@ const TabsLayout = () => {
 
   useEffect(() => {
     const fetchFavorite = async () => {
-      // console.log("Initial: ", initialMarkersContext)
       const singleFavorite = await getSingleStorageFavorite(
         Number(id),
         markersContext as MarkerType[]
       );
       if (singleFavorite) setIsFavorite(true);
       setSelectedMarker(initialMarkersContext?.find((marker) => marker.id === Number(id)));
-      console.log(selectedMarker)
     };
     fetchFavorite();
   }, []);
@@ -44,16 +42,13 @@ const TabsLayout = () => {
       }
     } catch (error) {
       console.error("Error handling favorites:", error);
-      // Optionally, you can add additional error handling or alert the user.
     }
   };
 
   const handleButtonPhone = () => {
-    // Call the phone number
     Linking.openURL(`tel:${selectedMarker?.phone}`);
   };
   const handleButtonWeb = () => {
-    // Call the web
     Linking.openURL(selectedMarker?.website ?? "https://Google.dk/");
   };
 
@@ -66,7 +61,6 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="home/[id]"
         options={{
-          // href: null,
           headerTitle: "",
           headerShown: false,
           tabBarLabel: "",
@@ -78,7 +72,6 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="favorites"
         options={{
-          //href: null,
           headerTitle: "",
           headerShown: false,
           tabBarLabel: "",
@@ -88,7 +81,6 @@ const TabsLayout = () => {
         }}
         listeners={{
           tabPress: (e: { preventDefault: () => void }) => {
-            // Prevent default action
             e.preventDefault();
             handleFavorites();
           },
@@ -97,7 +89,6 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="web"
         options={{
-          //href: null,
           headerTitle: "",
           headerShown: false,
           tabBarLabel: "",
@@ -107,7 +98,6 @@ const TabsLayout = () => {
         }}
         listeners={{
           tabPress: (e: { preventDefault: () => void }) => {
-            // Prevent default action
             e.preventDefault();
             handleButtonWeb();
           },
@@ -125,7 +115,6 @@ const TabsLayout = () => {
         }}
         listeners={{
           tabPress: (e: { preventDefault: () => void }) => {
-            // Prevent default action
             e.preventDefault();
             Alert.alert("Call:", `${selectedMarker?.phone}`, [
               {

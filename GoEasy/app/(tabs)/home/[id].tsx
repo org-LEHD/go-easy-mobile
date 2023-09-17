@@ -1,7 +1,6 @@
 import { ScrollView, View, Text, StyleSheet, Image } from "react-native";
-import { AVPlaybackStatus, ResizeMode, Video } from "expo-av";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { useSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "expo-router";
 import { Review } from "../../../components/Review";
 import { Card } from "../../../components/Card";
 import { useAdsApi } from "../../../data/useAdsApi";
@@ -13,7 +12,7 @@ const home = () => {
   const [adds, setAdds] = useState<AddType[] | null>(null);
 
   useEffect(() => {
-    // Define an async function to fetch and log the initial ads
+    // An async function to fetch and log the initial ads
     const fetchData = async () => {
       try {
         const initialAds = await fetchInitialAds();

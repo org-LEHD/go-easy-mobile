@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { StyleSheet, View, Text, Button, FlatList } from "react-native";
+import { StyleSheet, View, Text, FlatList } from "react-native";
 import { MapContext } from "../../context/mapContextProvider";
 import { CARD_WIDTH, WIDTH } from "../../constants/constants";
 import { BottomSheetMarkerHeader } from "./BottomsheetMarkerHeader";
 import { useFavoriteAsyncStorage } from "../../hooks/useFavoriteAsyncStorage";
 import { SwipeableItem } from "./../SwipeableItem";
 import { MarkerType } from "../Types";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const BottomSheetFavoriteList = ({ handleOnFavoriteSelect }: any) => {
   // context
@@ -78,9 +77,6 @@ export const BottomSheetFavoriteList = ({ handleOnFavoriteSelect }: any) => {
       onChange={handleBottomSheetonChange}
     >
       <View style={{ flex: 1, alignItems: "center" }}>
-        {/* <Button title={"clear"} onPress={clearStorageMarkers}>
-          <Text>Store Async Storage</Text>
-        </Button> */}
         <FlatList
           data={favorites}
           renderItem={({ item }) => {

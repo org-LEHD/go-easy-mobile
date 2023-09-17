@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
+import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { Stack } from "expo-router";
 import { useRouter } from "expo-router";
 import { SVGIcons } from "../components/SVG-Icons/Svg";
-import { MapContextProvider, MapContext } from "../context/mapContextProvider";
+import { MapContextProvider } from "../context/mapContextProvider";
 
 const StackLayout = () => {
   const router = useRouter();
